@@ -22,7 +22,7 @@
 
 What is Kickstart?
 
-  Kickstart.nvim is *not* a distribution.
+  Kickstart.nvim is *not* a distribution t.
 
   Kickstart.nvim is a starting point for your own configuration.
     The goal is that you can read every line of code, top-to-bottom, understand
@@ -98,11 +98,27 @@ vim.g.have_nerd_font = false
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- Enable better color and indent visualization
+vim.opt.termguicolors = true
+vim.opt.list = true
+vim.opt.listchars:append 'space:⋅' -- Show spaces with a middle dot
+vim.opt.listchars:append 'eol:↴' -- Show end of line character
+
+-- Better indentation settings
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.smartindent = true
+
+-- Add a colored column at 80 characters
+vim.opt.colorcolumn = '125'
+
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -156,6 +172,22 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- For macOS (cmd key is <D>)
+vim.keymap.set('n', '<D-/>', 'gcc', { remap = true, desc = 'Toggle comment line' })
+vim.keymap.set('v', '<D-/>', 'gc', { remap = true, desc = 'Toggle comment selection' })
+
+-- Move lines up and down with Shift+J/K
+vim.keymap.set('n', 'J', ':m .+1<CR>==', { desc = 'Move line down', silent = true })
+vim.keymap.set('n', 'K', ':m .-2<CR>==', { desc = 'Move line up', silent = true })
+
+-- Also make it work in visual mode to move selected lines
+vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = 'Move selection down', silent = true })
+vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move selection up', silent = true })
+
+-- Neotree keymaps
+vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>', { desc = 'Toggle Neotree' })
+vim.keymap.set('n', '<leader>o', ':Neotree focus<CR>', { desc = 'Focus Neotree' })
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -179,6 +211,10 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 -- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+
+-- First, unbind the backtick key from all modes
+vim.keymap.set('n', '`', '<Nop>', { noremap = true, silent = true })
+vim.keymap.set('v', '`', '<Nop>', { noremap = true, silent = true })
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -264,7 +300,770 @@ require('lazy').setup({
       },
     },
   },
+  {
+    'zbirenbaum/copilot.lua',
+    cmd = 'Copilot',
+    build = ':Copilot auth',
+    opts = {
+      suggestion = { enabled = true },
+      panel = { enabled = true },
+      debug = false,
+      -- Window settings
+      window = {
+        layout = 'split', -- 'float' | 'split' | 'vsplit'
+        relative = 'editor',
+        width = 0.8, -- decimal between 0 and 1
+        height = 0.8, -- decimal between 0 and 1
+        row = 0.1, -- decimal between 0 and 1
+        col = 0.1, -- decimal between 0 and 1
+      },
+    },
+  },
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    branch = 'canary',
+    dependencies = {
+      { 'zbirenbaum/copilot.lua' }, -- or github/copilot.vim
+      { 'nvim-lua/plenary.nvim' }, -- for HTTP(S) request
+    },
+    opts = {
+      debug = false, -- Enable debugging
+      -- See Configuration section for rest of the options
+    },
+    keys = {
+      -- Basic commands
+      {
+        '<leader>cc',
+        function()
+          require('CopilotChat').toggle()
+        end,
+        desc = 'Toggle Copilot Chat',
+      },
+      -- Explain code
+      {
+        '<leader>ce',
+        function()
+          require('CopilotChat').explain()
+        end,
+        desc = 'Explain code',
+        mode = { 'n', 'v' },
+      },
+      -- Generate tests
+      {
+        '<leader>ct',
+        function()
+          require('CopilotChat').test()
+        end,
+        desc = 'Generate tests',
+        mode = { 'n', 'v' },
+      },
+      -- Fix code
+      {
+        '<leader>cf',
+        function()
+          require('CopilotChat').fix()
+        end,
+        desc = 'Fix issues in code',
+        mode = { 'n', 'v' },
+      },
+      -- Review code for improvements
+      {
+        '<leader>cr',
+        function()
+          require('CopilotChat').review()
+        end,
+        desc = 'Review code for improvements',
+        mode = { 'n', 'v' },
+      },
+      -- Free form question about selected code or buffer
+      {
+        '<leader>cq',
+        function()
+          local input = vim.fn.input 'Ask Copilot: '
+          if input ~= '' then
+            require('CopilotChat').ask(input)
+          end
+        end,
+        desc = 'Ask about code',
+        mode = { 'n', 'v' },
+      },
+      -- Generate documentation for selected code or current buffer
+      {
+        '<leader>cd',
+        function()
+          require('CopilotChat').docs()
+        end,
+        desc = 'Generate documentation',
+        mode = { 'n', 'v' },
+      },
+      -- Debug the selected code or current buffer
+      {
+        '<leader>cb',
+        function()
+          require('CopilotChat').debug()
+        end,
+        desc = 'Debug code',
+        mode = { 'n', 'v' },
+      },
+      -- Show implementations
+      {
+        '<leader>ci',
+        function()
+          require('CopilotChat').implement()
+        end,
+        desc = 'Implement code',
+        mode = { 'n', 'v' },
+      },
+      -- Optimize code
+      {
+        '<leader>co',
+        function()
+          require('CopilotChat').optimize()
+        end,
+        desc = 'Optimize code',
+        mode = { 'n', 'v' },
+      },
+    },
+  },
 
+  {
+    'folke/noice.nvim',
+    event = 'VeryLazy',
+    dependencies = {
+      'MunifTanjim/nui.nvim',
+      'rcarriga/nvim-notify',
+    },
+    opts = {
+      -- add your noice config here
+      lsp = {
+        -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+        override = {
+          ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+          ['vim.lsp.util.stylize_markdown'] = true,
+          ['cmp.entry.get_documentation'] = true,
+        },
+      },
+      -- you can enable a preset for easier configuration
+      presets = {
+        bottom_search = true, -- use a classic bottom cmdline for search
+        command_palette = true, -- position the cmdline and popupmenu together
+        long_message_to_split = true, -- long messages will be sent to a split
+        inc_rename = false, -- enables an input dialog for inc-rename.nvim
+        lsp_doc_border = false, -- add a border to hover docs and signature help
+      },
+      routes = {
+        {
+          filter = {
+            event = 'msg_show',
+            kind = '',
+            find = 'written',
+          },
+          opts = { skip = true },
+        },
+      },
+      views = {
+        cmdline_popup = {
+          position = {
+            row = 5,
+            col = '50%',
+          },
+          size = {
+            width = 60,
+            height = 'auto',
+          },
+        },
+        popupmenu = {
+          relative = 'editor',
+          position = {
+            row = 8,
+            col = '50%',
+          },
+          size = {
+            width = 60,
+            height = 10,
+          },
+          border = {
+            style = 'rounded',
+            padding = { 0, 1 },
+          },
+          win_options = {
+            winhighlight = { Normal = 'Normal', FloatBorder = 'DiagnosticInfo' },
+          },
+        },
+      },
+    },
+    keys = {
+      {
+        '<S-Enter>',
+        function()
+          require('noice').redirect(vim.fn.getcmdline())
+        end,
+        mode = 'c',
+        desc = 'Redirect Cmdline',
+      },
+      {
+        '<leader>nl',
+        function()
+          require('noice').cmd 'last'
+        end,
+        desc = 'Noice Last Message',
+      },
+      {
+        '<leader>nh',
+        function()
+          require('noice').cmd 'history'
+        end,
+        desc = 'Noice History',
+      },
+      {
+        '<leader>na',
+        function()
+          require('noice').cmd 'all'
+        end,
+        desc = 'Noice All',
+      },
+      {
+        '<leader>nd',
+        function()
+          require('noice').cmd 'dismiss'
+        end,
+        desc = 'Dismiss All',
+      },
+      {
+        '<c-f>',
+        function()
+          if not require('noice.lsp').scroll(4) then
+            return '<c-f>'
+          end
+        end,
+        silent = true,
+        expr = true,
+        desc = 'Scroll forward',
+        mode = { 'i', 'n', 's' },
+      },
+      {
+        '<c-b>',
+        function()
+          if not require('noice.lsp').scroll(-4) then
+            return '<c-b>'
+          end
+        end,
+        silent = true,
+        expr = true,
+        desc = 'Scroll backward',
+        mode = { 'i', 'n', 's' },
+      },
+    },
+  },
+  {
+    'kdheepak/lazygit.nvim',
+    lazy = true,
+    cmd = {
+      'LazyGit',
+      'LazyGitConfig',
+      'LazyGitCurrentFile',
+      'LazyGitFilter',
+      'LazyGitFilterCurrentFile',
+    },
+    -- optional for floating window border decoration
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    -- setting the keybinding for LazyGit with 'keys' is recommended in
+    -- order to load the plugin when the command is run for the first time
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
+  },
+
+  {
+    'akinsho/toggleterm.nvim',
+    version = '*',
+    config = function()
+      require('toggleterm').setup {
+        size = function(term)
+          if term.direction == 'horizontal' then
+            return 15
+          elseif term.direction == 'vertical' then
+            return vim.o.columns * 0.4
+          end
+        end,
+        hide_numbers = true,
+        shade_filetypes = {},
+        shade_terminals = true,
+        shading_factor = 2,
+        start_in_insert = true,
+        insert_mappings = false,
+        terminal_mappings = true,
+        persist_size = true,
+        direction = 'float',
+        close_on_exit = true,
+        shell = vim.o.shell,
+        float_opts = {
+          border = 'curved',
+          width = 100,
+          height = 30,
+          winblend = 0,
+          highlights = {
+            border = 'Normal',
+            background = 'Normal',
+          },
+        },
+      }
+
+      -- Bind Shift+T to toggle terminal in both normal and terminal mode
+      vim.keymap.set({ 'n', 't' }, '<S-T>', '<cmd>ToggleTerm direction=float<cr>', {
+        noremap = true,
+        silent = true,
+        desc = 'Toggle floating terminal',
+      })
+    end,
+  },
+  {
+    'nvim-tree/nvim-web-devicons',
+    enabled = false,
+  },
+
+  -- Disable mini.icons
+  {
+    'echasnovski/mini.icons',
+    enabled = false,
+  },
+
+  -- Configure neo-tree to not use icons
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    opts = {
+      default_component_configs = {
+        icon = {
+          folder_closed = '>',
+          folder_open = 'v',
+          folder_empty = '-',
+          default = '*',
+        },
+      },
+    },
+  },
+
+  -- Configure bufferline to not use icons
+  {
+    'akinsho/bufferline.nvim',
+    opts = {
+      options = {
+        show_buffer_icons = false,
+        show_buffer_close_icons = false,
+        show_close_icon = false,
+        indicator = {
+          icon = '>',
+        },
+      },
+    },
+  },
+
+  -- Configure lualine to use simple indicators instead of icons
+  {
+    'nvim-lualine/lualine.nvim',
+    opts = {
+      sections = {
+        lualine_b = {
+          { 'branch', icon = '' },
+        },
+        lualine_c = {
+          {
+            'diagnostics',
+            symbols = {
+              error = 'E',
+              warn = 'W',
+              info = 'I',
+              hint = 'H',
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    'pocco81/auto-save.nvim',
+    event = { 'InsertLeave', 'TextChanged' },
+    opts = {
+      enabled = true,
+      execution_message = {
+        enabled = false,
+      },
+      trigger_events = { -- See :h events
+        immediate_save = { 'BufLeave', 'FocusLost' }, -- vim events that trigger an immediate save
+        defer_save = { 'InsertLeave', 'TextChanged' }, -- vim events that trigger a deferred save (saves after waiting for `debounce_delay`)
+        cancel_defered_save = { 'InsertEnter' }, -- vim events that cancel a pending deferred save
+      },
+      write_all_buffers = false, -- write all buffers when the current one meets `condition`
+      debounce_delay = 1000, -- delay after which a pending save is executed
+      callbacks = { -- functions to be executed at different intervals
+        enabling = nil, -- ran when enabling auto-save
+        disabling = nil, -- ran when disabling auto-save
+        before_asserting_save = nil, -- ran before checking if save is needed
+        before_saving = nil, -- ran before doing the actual save
+        after_saving = nil, -- ran after doing the actual save
+      },
+      conditions = {
+        exists = true,
+        modifiable = true,
+        filename_is_not = {},
+        filetype_is_not = {},
+      },
+    },
+  },
+  {
+    {
+      'hrsh7th/nvim-cmp',
+      dependencies = {
+        'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/cmp-buffer',
+        'hrsh7th/cmp-path',
+        'L3MON4D3/LuaSnip',
+        'saadparwaiz1/cmp_luasnip',
+      },
+      config = function()
+        local cmp = require 'cmp'
+        local luasnip = require 'luasnip'
+
+        cmp.setup {
+          snippet = {
+            expand = function(args)
+              luasnip.lsp_expand(args.body)
+            end,
+          },
+          mapping = cmp.mapping.preset.insert {
+            -- Use cmd+j/k for scrolling documentation
+            ['<D-j>'] = cmp.mapping.scroll_docs(4),
+            ['<D-k>'] = cmp.mapping.scroll_docs(-4),
+
+            -- Use cmd+space for completion menu
+            ['<S-Space>'] = cmp.mapping.complete(),
+
+            -- Use cmd+return for confirming completion
+            ['<D-CR>'] = cmp.mapping.confirm { select = true },
+
+            -- Use cmd+n/p for navigating completions
+            ['<D-n>'] = cmp.mapping.select_next_item(),
+            ['<D-p>'] = cmp.mapping.select_prev_item(),
+
+            -- Tab still works as before
+            ['<Tab>'] = cmp.mapping(function(fallback)
+              if cmp.visible() then
+                cmp.select_next_item()
+              elseif luasnip.expand_or_jumpable() then
+                luasnip.expand_or_jump()
+              else
+                fallback()
+              end
+            end, { 'i', 's' }),
+
+            -- Shift+Tab for previous item
+            ['<S-Tab>'] = cmp.mapping(function(fallback)
+              if cmp.visible() then
+                cmp.select_prev_item()
+              elseif luasnip.jumpable(-1) then
+                luasnip.jump(-1)
+              else
+                fallback()
+              end
+            end, { 'i', 's' }),
+
+            -- Escape to close completion menu
+            ['<Esc>'] = cmp.mapping(function(fallback)
+              if cmp.visible() then
+                cmp.close()
+              else
+                fallback()
+              end
+            end),
+          },
+          sources = cmp.config.sources {
+            { name = 'nvim_lsp' },
+            { name = 'luasnip' },
+            { name = 'buffer' },
+            { name = 'path' },
+          },
+          -- Add window styling for better visibility
+          window = {
+            completion = cmp.config.window.bordered(),
+            documentation = cmp.config.window.bordered(),
+          },
+          -- Improve the completion experience
+          completion = {
+            completeopt = 'menu,menuone,noinsert',
+          },
+        }
+      end,
+    },
+  },
+  {
+    'folke/snacks.nvim',
+    priority = 1000,
+    lazy = false,
+    ---@type snacks.Config
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+      bigfile = { enabled = true },
+      dashboard = { enabled = true },
+      explorer = { enabled = true },
+      indent = { enabled = true },
+      input = { enabled = true },
+      picker = { enabled = true },
+      notifier = { enabled = true },
+      quickfile = { enabled = true },
+      scope = { enabled = true },
+      scroll = { enabled = true },
+      statuscolumn = { enabled = true },
+      words = { enabled = true },
+    },
+  },
+  {
+    {
+      'lukas-reineke/indent-blankline.nvim',
+      main = 'ibl',
+      config = function()
+        local highlight = {
+          'RainbowRed',
+          'RainbowYellow',
+          'RainbowBlue',
+          'RainbowOrange',
+          'RainbowGreen',
+          'RainbowViolet',
+          'RainbowCyan',
+        }
+
+        -- Create the highlight groups
+        local colors = {
+          -- Adjust these colors to match your theme
+          '#E06C75', -- red
+          '#E5C07B', -- yellow
+          '#61AFEF', -- blue
+          '#D19A66', -- orange
+          '#98C379', -- green
+          '#C678DD', -- violet
+          '#56B6C2', -- cyan
+        }
+
+        for i, color in ipairs(colors) do
+          vim.api.nvim_set_hl(0, highlight[i], { fg = color })
+        end
+
+        require('ibl').setup {
+          indent = {
+            highlight = highlight,
+            char = '│',
+          },
+          scope = {
+            enabled = true,
+            show_start = true,
+            show_end = true,
+            injected_languages = true,
+            highlight = highlight,
+            priority = 500,
+          },
+          exclude = {
+            filetypes = {
+              'help',
+              'dashboard',
+              'neo-tree',
+              'Trouble',
+              'trouble',
+              'lazy',
+              'mason',
+              'notify',
+            },
+          },
+        }
+
+        -- Create a rainbow scope for better visibility
+        local hooks = require 'ibl.hooks'
+        hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
+      end,
+    },
+    -- Combine with rainbow brackets for the best effect
+    {
+      'HiPhish/rainbow-delimiters.nvim',
+      config = function()
+        local rainbow_delimiters = require 'rainbow-delimiters'
+
+        vim.g.rainbow_delimiters = {
+          strategy = {
+            [''] = rainbow_delimiters.strategy['global'],
+          },
+          query = {
+            [''] = 'rainbow-delimiters',
+          },
+          highlight = {
+            'RainbowRed',
+            'RainbowYellow',
+            'RainbowBlue',
+            'RainbowOrange',
+            'RainbowGreen',
+            'RainbowViolet',
+            'RainbowCyan',
+          },
+        }
+      end,
+    },
+  },
+  {
+    {
+      'lewis6991/gitsigns.nvim',
+      config = function()
+        require('gitsigns').setup {
+          signs = {
+            add = { text = '│' },
+            change = { text = '│' },
+            delete = { text = '_' },
+            topdelete = { text = '‾' },
+            changedelete = { text = '~' },
+          },
+          -- Enable current line blame by default
+          current_line_blame = true,
+          current_line_blame_opts = {
+            virt_text = true,
+            virt_text_pos = 'eol', -- 'eol' | 'overlay' | 'right_align'
+            delay = 500, -- Delay before blame appears
+            ignore_whitespace = false,
+          },
+          -- Customize the blame line format
+          current_line_blame_formatter = '<author>, <author_time:%Y-%m-%d> - <summary>',
+          on_attach = function(bufnr)
+            local gs = package.loaded.gitsigns
+
+            -- Navigation
+            vim.keymap.set('n', ']c', gs.next_hunk, { buffer = bufnr, desc = 'Next hunk' })
+            vim.keymap.set('n', '[c', gs.prev_hunk, { buffer = bufnr, desc = 'Prev hunk' })
+
+            -- Actions
+            vim.keymap.set('n', '<leader>hs', gs.stage_hunk, { buffer = bufnr, desc = 'Stage hunk' })
+            vim.keymap.set('n', '<leader>hr', gs.reset_hunk, { buffer = bufnr, desc = 'Reset hunk' })
+            vim.keymap.set('n', '<leader>hS', gs.stage_buffer, { buffer = bufnr, desc = 'Stage buffer' })
+            vim.keymap.set('n', '<leader>hu', gs.undo_stage_hunk, { buffer = bufnr, desc = 'Undo stage hunk' })
+            vim.keymap.set('n', '<leader>hR', gs.reset_buffer, { buffer = bufnr, desc = 'Reset buffer' })
+            vim.keymap.set('n', '<leader>hp', gs.preview_hunk, { buffer = bufnr, desc = 'Preview hunk' })
+            vim.keymap.set('n', '<leader>hb', function()
+              gs.blame_line { full = true }
+            end, { buffer = bufnr, desc = 'Blame line' })
+            vim.keymap.set('n', '<leader>htb', gs.toggle_current_line_blame, { buffer = bufnr, desc = 'Toggle line blame' })
+            vim.keymap.set('n', '<leader>hd', gs.diffthis, { buffer = bufnr, desc = 'Diff this' })
+            vim.keymap.set('n', '<leader>hD', function()
+              gs.diffthis '~'
+            end, { buffer = bufnr, desc = 'Diff this ~' })
+
+            -- Text object for hunks
+            vim.keymap.set({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { buffer = bufnr, desc = 'Select hunk' })
+          end,
+        }
+      end,
+    },
+    {
+      'tpope/vim-fugitive',
+      dependencies = {
+        'tpope/vim-rhubarb', -- GitHub integration
+      },
+      config = function()
+        -- Fugitive keymaps
+        vim.keymap.set('n', '<leader>gs', vim.cmd.Git, { desc = 'Git status' })
+        vim.keymap.set('n', '<leader>gb', ':Git blame<CR>', { desc = 'Git blame' })
+        vim.keymap.set('n', '<leader>gd', ':Gdiff<CR>', { desc = 'Git diff' })
+        vim.keymap.set('n', '<leader>gl', ':0Gclog<CR>', { desc = 'Git log' })
+        vim.keymap.set('n', '<leader>gB', ':GBrowse<CR>', { desc = 'Open in GitHub' })
+      end,
+    },
+  },
+  {
+    'nvimdev/dashboard-nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      local dash = require 'dashboard'
+
+      -- Custom ASCII art with rainbow colors
+      local headers = {
+        [[]],
+        [[]],
+        [[]],
+        [[]],
+        [[]],
+        [[██╗    ██╗   ██╗███████╗███████╗    ██╗   ██╗██╗███╗   ███╗    ██████╗ ████████╗██╗    ██╗]],
+        [[██║    ██║   ██║██╔════╝██╔════╝    ██║   ██║██║████╗ ████║    ██╔══██╗╚══██╔══╝██║    ██║]],
+        [[██║    ██║   ██║███████╗█████╗      ██║   ██║██║██╔████╔██║    ██████╔╝   ██║   ██║ █╗ ██║]],
+        [[██║    ██║   ██║╚════██║██╔══╝      ╚██╗ ██╔╝██║██║╚██╔╝██║    ██╔══██╗   ██║   ██║███╗██║]],
+        [[██║    ╚██████╔╝███████║███████╗     ╚████╔╝ ██║██║ ╚═╝ ██║    ██████╔╝   ██║   ╚███╔███╔╝]],
+        [[╚═╝     ╚═════╝ ╚══════╝╚══════╝      ╚═══╝  ╚═╝╚═╝     ╚═╝    ╚═════╝    ╚═╝    ╚══╝╚══╝ ]],
+        [[]],
+        [[]],
+        [[]],
+        [[]],
+      }
+
+      -- Configure dashboard
+      dash.setup {
+        theme = 'doom',
+        config = {
+          header = headers,
+          -- Set different colors for each line of the header
+          header_color = function()
+            local lines = {}
+            for i = 1, #headers do
+              table.insert(lines, { [1] = colors[(i % #colors) + 1] })
+            end
+            return lines
+          end,
+          center = {
+            {
+              icon = ' ',
+              icon_hl = 'Title',
+              desc = 'Find File',
+              desc_hl = 'String',
+              key = 'f',
+              key_hl = 'Number',
+              action = 'Telescope find_files',
+            },
+            {
+              icon = ' ',
+              icon_hl = 'Title',
+              desc = 'Recent Files',
+              desc_hl = 'String',
+              key = 'r',
+              key_hl = 'Number',
+              action = 'Telescope oldfiles',
+            },
+            {
+              icon = ' ',
+              icon_hl = 'Title',
+              desc = 'Find Word',
+              desc_hl = 'String',
+              key = 'w',
+              key_hl = 'Number',
+              action = 'Telescope live_grep',
+            },
+            {
+              icon = ' ',
+              icon_hl = 'Title',
+              desc = 'New File',
+              desc_hl = 'String',
+              key = 'n',
+              key_hl = 'Number',
+              action = 'enew',
+            },
+          },
+          footer = function()
+            local datetime = os.date 'UTC - %Y-%m-%d %H:%M:%S'
+            local username = vim.fn.expand '$USER'
+            return {
+              '⚡ Current Date and Time: ' .. datetime,
+              '👤 Current User: ' .. username,
+            }
+          end,
+        },
+      }
+    end,
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -412,6 +1211,9 @@ require('lazy').setup({
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
+      -- Unbind backtick key in normal and visual mode
+      vim.keymap.set('n', '`', '<Nop>', { noremap = true, silent = true })
+      vim.keymap.set('v', '`', '<Nop>', { noremap = true, silent = true })
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
