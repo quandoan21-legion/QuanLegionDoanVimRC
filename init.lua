@@ -169,6 +169,18 @@ vim.opt.inccommand = 'split'
 -- Show which line your cursor is on
 vim.opt.cursorline = true
 
+-- init.lua
+-- Your existing configuration may already include other settings and plugin setups.
+-- Below are key mappings to change buffers:
+--
+--  - Press '-' to switch to the previous buffer.
+--  - Press '=' to switch to the next buffer.
+
+vim.keymap.set('n', '-', '<cmd>bprevious<CR>', { desc = 'Switch to previous buffer' })
+vim.keymap.set('n', '=', '<cmd>bnext<CR>', { desc = 'Switch to next buffer' })
+
+-- The rest of your configuration goes here.
+
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
@@ -296,6 +308,7 @@ require('lazy').setup({
       },
     },
   },
+  { 'tpope/vim-surround' },
   {
     'zbirenbaum/copilot.lua',
     cmd = 'Copilot',
