@@ -1856,6 +1856,21 @@ require('lazy').setup({
     },
   },
 })
+local lspconfig = require 'lspconfig'
 
+lspconfig.pylsp.setup {
+  settings = {
+    pylsp = {
+      plugins = {
+        pycodestyle = {
+          maxLineLength = 126, -- Change this value as desired
+        },
+      },
+    },
+  },
+  on_attach = function(client, bufnr)
+    -- You can define custom keymaps or client-specific configuration here if needed.
+  end,
+}
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
