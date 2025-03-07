@@ -43,6 +43,7 @@ What is Kickstart?
 
 Kickstart Guide:
 
+
   TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
 
     If you don't know what this means, type the following:
@@ -309,6 +310,7 @@ require('lazy').setup({
     },
   },
   { 'tpope/vim-surround' },
+  { 'neoclide/coc.nvim' },
   {
     'zbirenbaum/copilot.lua',
     cmd = 'Copilot',
@@ -1692,11 +1694,11 @@ require('lazy').setup({
           --['<Tab>'] = cmp.mapping.select_next_item(),
           --['<S-Tab>'] = cmp.mapping.select_prev_item(),
           -- Use Cmd+n for next item
-          ['<D-n>'] = cmp.mapping.select_next_item(),
-          -- Use Cmd+p for previous item
-          ['<D-p>'] = cmp.mapping.select_prev_item(),
-          -- Use Cmd+y for confirming completion
-          ['<D-y>'] = cmp.mapping.confirm { select = true },
+          -- ['<D-n>'] = cmp.mapping.select_next_item(),
+          -- -- Use Cmd+p for previous item
+          -- ['<D-p>'] = cmp.mapping.select_prev_item(),
+          -- -- Use Cmd+y for confirming completion
+          -- ['<D-y>'] = cmp.mapping.confirm { select = true },
           -- Other mappings...
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -1901,4 +1903,10 @@ require('lualine').setup {
       },
     },
   },
+}
+require('lazy').setup {
+  'neovim/nvim-lspconfig',
+  config = function()
+    require('lspconfig').pyright.setup {}
+  end,
 }
