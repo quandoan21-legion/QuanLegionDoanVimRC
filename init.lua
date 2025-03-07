@@ -1691,7 +1691,13 @@ require('lazy').setup({
           --['<CR>'] = cmp.mapping.confirm { select = true },
           --['<Tab>'] = cmp.mapping.select_next_item(),
           --['<S-Tab>'] = cmp.mapping.select_prev_item(),
-
+          -- Use Cmd+n for next item
+          ['<D-n>'] = cmp.mapping.select_next_item(),
+          -- Use Cmd+p for previous item
+          ['<D-p>'] = cmp.mapping.select_prev_item(),
+          -- Use Cmd+y for confirming completion
+          ['<D-y>'] = cmp.mapping.confirm { select = true },
+          -- Other mappings...
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
           --  completions whenever it has completion options available.
@@ -1885,5 +1891,14 @@ lspconfig.pylsp.setup {
     -- You can define custom keymaps or client-specific configuration here if needed.
   end,
 }
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+require('lualine').setup {
+  sections = {
+    lualine_x = {
+      {
+        require('noice').api.statusline.mode.get,
+        cond = require('noice').api.statusline.mode.has,
+        color = { fg = '#ff9e64' },
+      },
+    },
+  },
+}
