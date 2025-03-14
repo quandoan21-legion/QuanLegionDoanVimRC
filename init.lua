@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -163,6 +163,7 @@ vim.opt.confirm = true
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
+vim.keymap.set('n', '<leader>x', ':bd<CR>', { desc = 'Close buffer' })
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
@@ -337,6 +338,371 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+      },
+    },
+  },
+
+  -- Rainbow delimiters (colored brackets)
+  {
+    'HiPhish/rainbow-delimiters.nvim',
+    config = function()
+      local rainbow_delimiters = require 'rainbow-delimiters'
+      vim.g.rainbow_delimiters = {
+        strategy = {
+          [''] = rainbow_delimiters.strategy['global'],
+        },
+        query = {
+          [''] = 'rainbow-delimiters',
+        },
+        highlight = {
+          'RainbowRed',
+          'RainbowYellow',
+          'RainbowBlue',
+          'RainbowOrange',
+          'RainbowGreen',
+          'RainbowViolet',
+          'RainbowCyan',
+        },
+      }
+    end,
+  },
+
+  -- Indent guides
+  {
+    'lukas-reineke/indent-blankline.nvim',
+    main = 'ibl',
+    config = function()
+      require('ibl').setup {
+        indent = { char = '│' },
+        scope = { enabled = true, show_start = true, show_end = true },
+      }
+    end,
+  },
+
+  -- Surround text with brackets, quotes, etc.
+  {
+    'tpope/vim-surround',
+    lazy = false,
+  },
+
+  -- Odoo LSP
+  {
+    'whenrow/odoo-ls.nvim',
+    dependencies = { 'neovim/nvim-lspconfig' },
+  },
+
+  -- Git integration
+  {
+    'lewis6991/gitsigns.nvim',
+    opts = {
+      signs = {
+        add = { text = '+' },
+        change = { text = '~' },
+        delete = { text = '_' },
+        topdelete = { text = '‾' },
+        changedelete = { text = '~' },
+      },
+    },
+  },
+
+  -- Terminal integration
+  {
+    'akinsho/toggleterm.nvim',
+    version = '*',
+    config = function()
+      require('toggleterm').setup {
+        size = function(term)
+          if term.direction == 'horizontal' then
+            return 15
+          elseif term.direction == 'vertical' then
+            return vim.o.columns * 0.4
+          end
+        end,
+        direction = 'float',
+        float_opts = { border = 'curved' },
+      }
+
+      -- Keybinding for toggling terminal
+      vim.keymap.set({ 'n', 't' }, '<S-T>', '<cmd>ToggleTerm<cr>', { noremap = true, silent = true })
+    end,
+  },
+
+  -- Lazygit integration
+  {
+    'kdheepak/lazygit.nvim',
+    lazy = true,
+    cmd = { 'LazyGit', 'LazyGitConfig', 'LazyGitCurrentFile', 'LazyGitFilter', 'LazyGitFilterCurrentFile' },
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
+  },
+
+  -- Autocompletion
+  {
+    'hrsh7th/nvim-cmp',
+    event = 'InsertEnter',
+    dependencies = {
+      'L3MON4D3/LuaSnip',
+      'saadparwaiz1/cmp_luasnip',
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-path',
+      'hrsh7th/cmp-nvim-lsp-signature-help',
+    },
+    config = function()
+      local cmp = require 'cmp'
+      local luasnip = require 'luasnip'
+
+      cmp.setup {
+        snippet = {
+          expand = function(args)
+            luasnip.lsp_expand(args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert {
+          ['<C-n>'] = cmp.mapping.select_next_item(),
+          ['<C-p>'] = cmp.mapping.select_prev_item(),
+          ['<C-Space>'] = cmp.mapping.complete {},
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+        },
+        sources = {
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
+          { name = 'path' },
+        },
+      }
+    end,
+  },
+
+  -- Odoo Snippets
+  {
+    'mstuttgart/vscode-odoo-snippets',
+    event = 'InsertEnter',
+  },
+
+  -- Dadbod (Database Management)
+  {
+    'tpope/vim-dadbod',
+    dependencies = {
+      'kristijanhusak/vim-dadbod-ui',
+      'kristijanhusak/vim-dadbod-completion',
+    },
+    cmd = { 'DBUI', 'DBUIToggle', 'DBUIAddConnection', 'DBUIFindBuffer' },
+    init = function()
+      vim.g.db_ui_use_nerd_fonts = 1
+      vim.g.db_ui_win_position = 'left'
+      vim.g.db_ui_show_database_icon = 1
+      vim.g.db_ui_winwidth = 45
+    end,
+    keys = {
+      { '<leader>du', '<cmd>DBUIToggle<CR>', desc = 'Toggle DBUI' },
+    },
+  },
+
+  {
+    'folke/noice.nvim',
+    event = 'VeryLazy',
+    dependencies = {
+      'MunifTanjim/nui.nvim',
+      'rcarriga/nvim-notify',
+    },
+    opts = {
+      cmdline = {
+        view = 'cmdline_popup', -- Display commands in a floating popup in the middle
+      },
+      presets = {
+        bottom_search = true, -- Keep the search UI at the bottom
+        command_palette = true, -- Display command UI in the center
+      },
+      views = {
+        cmdline_popup = {
+          position = {
+            row = '20%', -- Center vertically
+            col = '50%', -- Center horizontally
+          },
+          size = {
+            width = 60,
+            height = 'auto',
+          },
+          border = {
+            style = 'rounded',
+          },
+          win_options = {
+            winhighlight = { Normal = 'Normal', FloatBorder = 'DiagnosticInfo' },
+          },
+        },
+      },
+    },
+  },
+
+  {
+    -- File Explorer (Tree View)
+    'nvim-tree/nvim-tree.lua',
+    dependencies = { 'nvim-tree/nvim-web-devicons' }, -- Optional: Icons
+    cmd = { 'NvimTreeToggle', 'NvimTreeFocus' },
+    config = function()
+      require('nvim-tree').setup {
+        view = { width = 35, side = 'left' }, -- Set tree width & position
+        renderer = {
+          highlight_git = true, -- Highlight git changes
+          icons = { show = { file = true, folder = true, git = true } },
+        },
+      }
+    end,
+    keys = {
+      { '<leader>e', '<cmd>NvimTreeToggle<CR>', desc = 'Toggle File Tree' },
+      { '<leader>E', '<cmd>NvimTreeFocus<CR>', desc = 'Focus File Tree' },
+    },
+  },
+  {
+    'sphamba/smear-cursor.nvim',
+
+    opts = {
+      -- Smear cursor when switching buffers or windows.
+      smear_between_buffers = true,
+
+      -- Smear cursor when moving within line or to neighbor lines.
+      -- Use `min_horizontal_distance_smear` and `min_vertical_distance_smear` for finer control
+      smear_between_neighbor_lines = true,
+
+      -- Draw the smear in buffer space instead of screen space when scrolling
+      scroll_buffer_space = true,
+
+      -- Set to `true` if your font supports legacy computing symbols (block unicode symbols).
+      -- Smears will blend better on all backgrounds.
+      legacy_computing_symbols_support = false,
+
+      -- Smear cursor in insert mode.
+      -- See also `vertical_bar_cursor_insert_mode` and `distance_stop_animating_vertical_bar`.
+      smear_insert_mode = true,
+    },
+  },
+  -- GitHub Copilot
+  { 'github/copilot.vim' },
+
+  -- Auto-save
+  { 'Pocco81/auto-save.nvim' },
+
+  -- Copilot Lua
+  {
+    'zbirenbaum/copilot.lua',
+    cmd = 'Copilot',
+    build = ':Copilot auth',
+    opts = {
+      suggestion = { enabled = true },
+      panel = { enabled = true },
+    },
+  },
+
+  -- Bufferline (Tabs)
+  {
+    'akinsho/bufferline.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('bufferline').setup {
+        options = {
+          numbers = 'ordinal',
+          diagnostics = 'nvim_lsp',
+          separator_style = 'slant',
+          show_buffer_close_icons = false,
+          show_close_icon = false,
+          always_show_bufferline = true,
+        },
+      }
+    end,
+  },
+
+  -- Copilot Chat
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    branch = 'canary',
+    dependencies = {
+      { 'zbirenbaum/copilot.lua' },
+      { 'nvim-lua/plenary.nvim' },
+    },
+    opts = { debug = false },
+    keys = {
+      {
+        '<leader>cc',
+        function()
+          require('CopilotChat').toggle()
+        end,
+        desc = 'Toggle Copilot Chat',
+      },
+      {
+        '<leader>ce',
+        function()
+          require('CopilotChat').explain()
+        end,
+        desc = 'Explain code',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<leader>ct',
+        function()
+          require('CopilotChat').test()
+        end,
+        desc = 'Generate tests',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<leader>cf',
+        function()
+          require('CopilotChat').fix()
+        end,
+        desc = 'Fix issues in code',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<leader>cr',
+        function()
+          require('CopilotChat').review()
+        end,
+        desc = 'Review code for improvements',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<leader>cq',
+        function()
+          local input = vim.fn.input 'Ask Copilot: '
+          if input ~= '' then
+            require('CopilotChat').ask(input)
+          end
+        end,
+        desc = 'Ask about code',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<leader>cd',
+        function()
+          require('CopilotChat').docs()
+        end,
+        desc = 'Generate documentation',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<leader>cb',
+        function()
+          require('CopilotChat').debug()
+        end,
+        desc = 'Debug code',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<leader>ci',
+        function()
+          require('CopilotChat').implement()
+        end,
+        desc = 'Implement code',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<leader>co',
+        function()
+          require('CopilotChat').optimize()
+        end,
+        desc = 'Optimize code',
+        mode = { 'n', 'v' },
       },
     },
   },
@@ -1027,3 +1393,46 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+--
+vim.keymap.set('n', 'J', ':m .+1<CR>==', { noremap = true, silent = true })
+vim.keymap.set('n', 'K', ':m .-2<CR>==', { noremap = true, silent = true })
+vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { noremap = true, silent = true })
+vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<ESC>', '<C-\\><C-n>', { noremap = true, silent = true })
+
+vim.keymap.set('n', '-', '<cmd>bprevious<CR>', { noremap = true, silent = true, desc = 'Previous Buffer' })
+vim.keymap.set('n', '=', '<cmd>bnext<CR>', { noremap = true, silent = true, desc = 'Next Buffer' })
+-- Ensure Mason and LSPConfig are set up
+require('mason').setup()
+require('mason-lspconfig').setup {
+  ensure_installed = {
+    'pyright', -- Python LSP (for Odoo backend)
+    'tsserver', -- JavaScript LSP (for web assets)
+    'lemminx', -- XML LSP (for Odoo views)
+    'cssls', -- CSS LSP
+    'html', -- HTML LSP
+  },
+}
+
+-- Setup LSPs
+local lspconfig = require 'lspconfig'
+
+-- Python LSP for Odoo backend
+lspconfig.pyright.setup {}
+
+-- JavaScript LSP for Odoo frontend
+lspconfig.tsserver.setup {}
+
+-- XML LSP (Odoo Views, Manifests)
+lspconfig.lemminx.setup {}
+
+-- CSS LSP
+lspconfig.cssls.setup {}
+
+-- HTML LSP
+lspconfig.html.setup {}
+
+-- Odoo-specific LSP
+require('odoo-ls').setup {
+  lspconfig = lspconfig, -- Use the default LSP config
+}
