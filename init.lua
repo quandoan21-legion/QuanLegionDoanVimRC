@@ -726,7 +726,16 @@ require('lazy').setup({
       }
     end,
   },
-
+  --
+  -- add lua snip
+  --
+  {
+    'L3MON4D3/LuaSnip',
+    dependencies = { 'mstuttgart/vscode-odoo-snippets' },
+    config = function()
+      require('luasnip.loaders.from_vscode').lazy_load()
+    end,
+  },
   { -- Autoformat
     'stevearc/conform.nvim',
     event = { 'BufWritePre' },
@@ -1071,8 +1080,27 @@ require('lazy').setup({
     },
 
     --
+    -- Toggle terminal
     --
+    {
+      'akinsho/toggleterm.nvim',
+      version = '*',
+      config = function()
+        require('toggleterm').setup {
+          size = 15, -- Default terminal size
+          open_mapping = [[T]], -- Open with <leader>t
+          shade_terminals = true,
+          direction = 'float', -- Options: "horizontal" | "vertical" | "tab" | "float"
+        }
+      end,
+    },
     --
+    -- odoo snippet
+    --
+    {
+      'mstuttgart/vscode-odoo-snippets',
+      event = 'InsertEnter',
+    },
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
