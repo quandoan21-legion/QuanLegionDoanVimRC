@@ -1106,6 +1106,48 @@ require('lazy').setup({
     -- python dap
     --
     { 'mfussenegger/nvim-dap-python' },
+
+    --
+    -- buffer line
+    --
+    {
+      'akinsho/bufferline.nvim',
+      dependencies = 'nvim-tree/nvim-web-devicons',
+      config = function()
+        require('bufferline').setup {
+          options = {
+            diagnostics = 'nvim_lsp',
+            separator_style = 'slant',
+            show_close_icon = false,
+            show_buffer_close_icons = false,
+            offsets = {
+              { filetype = 'NvimTree', text = 'File Explorer', highlight = 'Directory', text_align = 'left' },
+            },
+          },
+        }
+      end,
+    },
+    --
+    -- codium text completion
+    --
+    {
+      'Exafunction/codeium.nvim',
+      dependencies = {
+        'nvim-lua/plenary.nvim',
+        'hrsh7th/nvim-cmp',
+      },
+      config = function()
+        require('codeium').setup {}
+      end,
+    },
+    --
+    -- smear cursor
+    --
+
+    {
+      'sphamba/smear-cursor.nvim',
+      opts = {},
+    },
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -1169,3 +1211,24 @@ keymap('n', 'K', ':m .-2<CR>==', opts) -- Move current line up
 -- Move selected lines up or down (Visual Mode)
 keymap('v', 'J', ":m '>+1<CR>gv=gv", opts) -- Move selected lines down
 keymap('v', 'K', ":m '<-2<CR>gv=gv", opts) -- Move selected lines up
+
+local function toggle_autosave()
+  autosave_enabled = not autosave_enabled -- Toggle the state
+  if autosave_enabled then
+    vim.cmd 'autocmd TextChanged,InsertLeave * silent! wa' -- Enable auto-save
+    print '📝 Auto-save: ON'
+  else
+    vim.cmd 'autocmd! TextChanged,InsertLeave' -- Disable auto-save
+    print '🚫 Auto-save: OFF'
+  end
+end
+
+vim.api.nvim_set_keymap('n', '<Leader>as', ':lua toggle_autosave()<CR>', { noremap = true, silent = true })
+
+--
+-- buffer line key bind
+--
+vim.api.nvim_set_keymap('n', '<Tab>', ':BufferLineCycleNext<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<S-Tab>', ':BufferLineCyclePrev<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>bd', ':bdelete<CR>', { noremap = true, silent = true }) -- Close buffer
+vim.api.nvim_set_keymap('n', '<Leader>bp', ':BufferLinePick<CR>', { noremap = true, silent = true }) -- Pick buffer
