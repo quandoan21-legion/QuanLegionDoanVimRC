@@ -664,7 +664,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -1101,6 +1101,11 @@ require('lazy').setup({
       'mstuttgart/vscode-odoo-snippets',
       event = 'InsertEnter',
     },
+
+    --
+    -- python dap
+    --
+    { 'mfussenegger/nvim-dap-python' },
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -1153,3 +1158,14 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+local keymap = vim.api.nvim_set_keymap
+local opts = { noremap = true, silent = true }
+
+-- Move a line up or down using J / K
+keymap('n', 'J', ':m .+1<CR>==', opts) -- Move current line down
+keymap('n', 'K', ':m .-2<CR>==', opts) -- Move current line up
+
+-- Move selected lines up or down (Visual Mode)
+keymap('v', 'J', ":m '>+1<CR>gv=gv", opts) -- Move selected lines down
+keymap('v', 'K', ":m '<-2<CR>gv=gv", opts) -- Move selected lines up
