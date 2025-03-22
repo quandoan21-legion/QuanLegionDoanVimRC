@@ -1,5 +1,4 @@
 --[[
-
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
@@ -91,7 +90,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -102,7 +101,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -839,11 +838,11 @@ require('lazy').setup({
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          -- ['<C-y>'] = cmp.mapping.confirm { select = true },
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
+          ['<CR>'] = cmp.mapping.confirm { select = true },
           --['<Tab>'] = cmp.mapping.select_next_item(),
           --['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
@@ -975,6 +974,105 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+
+    {
+      'nvimtools/none-ls.nvim',
+      dependencies = {
+        'nvimtools/none-ls-extras.nvim',
+        'jayp0521/mason-null-ls.nvim',
+      },
+      config = function()
+        local null_ls = require 'null-ls'
+        local formatting = null_ls.builtins.formatting
+        local diagnostics = null_ls.builtins.diagnostics
+
+        -- Ensure Mason installs formatters/linters
+        require('mason-null-ls').setup {
+          ensure_installed = {
+            'ruff', -- Python linter
+            'prettier', -- JS/HTML formatter
+            'stylua', -- Lua formatter
+            'eslint_d', -- JS linter
+            'shfmt', -- Shell formatter
+            'checkmake', -- Makefile linter
+          },
+          automatic_installation = true,
+        }
+
+        local sources = {
+          -- ✅ Correcting imports & formatting for Python
+          formatting.isort, -- Sort imports
+          diagnostics.ruff, -- Ruff for linting
+          formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
+
+          -- Other formatters
+          formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
+          formatting.stylua,
+          formatting.shfmt.with { args = { '-i', '4' } },
+          formatting.terraform_fmt,
+        }
+
+        local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+        null_ls.setup {
+          sources = sources,
+          on_attach = function(client, bufnr)
+            if client.supports_method 'textDocument/formatting' then
+              vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
+              vim.api.nvim_create_autocmd('BufWritePre', {
+                group = augroup,
+                buffer = bufnr,
+                callback = function()
+                  vim.lsp.buf.format { async = false }
+                end,
+              })
+            end
+          end,
+        }
+      end,
+    },
+
+    --
+    -- auto save
+    --
+
+    {
+      'Pocco81/auto-save.nvim',
+      config = function()
+        require('auto-save').setup {
+          enabled = true,
+          execution_message = {
+            message = function()
+              return 'Auto-saved!'
+            end,
+            dim = 0.18,
+            cleaning_interval = 1250,
+          },
+          trigger_events = { 'InsertLeave', 'TextChanged' }, -- Auto-save when leaving insert mode or modifying text
+          debounce_delay = 135, -- Save delay in milliseconds
+          conditions = {
+            exists = true,
+            filetype_is_not = {}, -- No exclusions
+            modifiable = true,
+          },
+          write_all_buffers = false, -- Only save the current buffer
+        }
+      end,
+    },
+
+    -- Lazygit
+    {
+      'kdheepak/lazygit.nvim',
+      keys = {
+        { '<leader>lg', '<cmd>LazyGit<CR>', desc = 'Open LazyGit' },
+      },
+      config = function()
+        vim.g.lazygit_floating_window_use_plenary = 0 -- Use default floating window
+      end,
+    },
+
+    --
+    --
+    --
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -986,18 +1084,18 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
