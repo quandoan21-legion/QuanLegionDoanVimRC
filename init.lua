@@ -512,6 +512,29 @@ require('lazy').setup({
       --    That is to say, every time a new file is opened that is associated with
       --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
       --    function will be executed to configure the current buffer
+      --
+      --
+
+      local lspconfig = require 'lspconfig'
+
+      -- Setup JavaScript/TypeScript
+      lspconfig.tsserver.setup {}
+
+      -- Setup Python
+      lspconfig.pylsp.setup {
+        settings = {
+          pylsp = {
+            plugins = {
+              pycodestyle = { enabled = true },
+              pylint = { enabled = true },
+              black = { enabled = true },
+              rope_completion = { enabled = true },
+              mypy = { enabled = true },
+            },
+          },
+        },
+      }
+
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
@@ -704,7 +727,13 @@ require('lazy').setup({
       --
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
-      local ensure_installed = vim.tbl_keys(servers or {})
+      local ensure_installed = vim.tbl_keys(servers or {
+        'tsserver', -- TypeScript/JavaScript
+        'eslint_d', -- JavaScript linting
+        'pyright', -- Python
+        'pylsp', -- Python Language Server
+        'black', -- Python formatting
+      })
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
       })
@@ -729,13 +758,54 @@ require('lazy').setup({
   --
   -- add lua snip
   --
+
+  -- Add to your config
   {
     'L3MON4D3/LuaSnip',
-    dependencies = { 'mstuttgart/vscode-odoo-snippets' },
     config = function()
-      require('luasnip.loaders.from_vscode').lazy_load()
+      local ls = require 'luasnip'
+      local s = ls.snippet
+      local t = ls.text_node
+      local i = ls.insert_node
+
+      -- JavaScript/OWL Snippets
+      ls.add_snippets('javascript', {
+        s('log', {
+          t 'console.log(',
+          i(1, ''),
+          t ');',
+        }),
+        s('func', {
+          t 'function ',
+          i(1, 'name'),
+          t '(',
+          i(2, 'params'),
+          t ') {',
+          t { '', '\t' },
+          i(0),
+          t { '', '}' },
+        }),
+        -- Add more JS snippets here
+      })
+
+      -- Python Snippets
+      ls.add_snippets('python', {
+        s('def', {
+          t 'def ',
+          i(1, 'function_name'),
+          t '(',
+          i(2, 'parameters'),
+          t ') -> ',
+          i(3, 'return_type'),
+          t { ': ', '\t' },
+          i(0),
+          t { '', '' },
+        }),
+        -- Add more Python snippets here
+      })
     end,
   },
+
   { -- Autoformat
     'stevearc/conform.nvim',
     event = { 'BufWritePre' },
@@ -814,6 +884,11 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-cmdline',
+      'L3MON4D3/LuaSnip',
+      'saadparwaiz1/cmp_luasnip',
+      'rafamadriz/friendly-snippets',
       'hrsh7th/cmp-nvim-lsp-signature-help',
     },
     config = function()
@@ -891,6 +966,7 @@ require('lazy').setup({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
+          { name = 'buffer' },
           { name = 'nvim_lsp_signature_help' },
         },
       }
@@ -965,7 +1041,25 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'javascript',
+        'typescript',
+        'python',
+        'html',
+        'css',
+        'json',
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -998,6 +1092,11 @@ require('lazy').setup({
         -- Ensure Mason installs formatters/linters
         require('mason-null-ls').setup {
           ensure_installed = {
+            'tsserver', -- TypeScript/JavaScript
+            'eslint_d', -- JavaScript linting
+            'pyright', -- Python
+            'pylsp', -- Python Language Server
+            'black', -- Python formatting
             'ruff', -- Python linter
             'prettier', -- JS/HTML formatter
             'stylua', -- Lua formatter
@@ -1147,6 +1246,23 @@ require('lazy').setup({
     {
       'sphamba/smear-cursor.nvim',
       opts = {},
+    },
+
+    --
+    -- ts tool
+    --
+    {
+      'pmizio/typescript-tools.nvim',
+      dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+      opts = {},
+    },
+    --
+    -- python gen
+    --
+    {
+      'danymat/neogen',
+      dependencies = 'nvim-treesitter/nvim-treesitter',
+      config = true,
     },
   },
 
