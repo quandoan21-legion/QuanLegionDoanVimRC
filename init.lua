@@ -991,7 +991,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'onedark_dark'
     end,
   },
 
@@ -1299,6 +1299,59 @@ require('lazy').setup({
         }
 
         hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
+      end,
+    },
+
+    --
+    -- cappuchin
+    --
+    {
+      'catppuccin/nvim',
+      name = 'catppuccin',
+      priority = 1000,
+      config = function()
+        require('catppuccin').setup {
+          flavour = 'mocha', -- latte, frappe, macchiato, mocha
+          integrations = {
+            treesitter = true,
+            native_lsp = {
+              enabled = true,
+              virtual_text = {
+                errors = { 'italic' },
+                hints = { 'italic' },
+                warnings = { 'italic' },
+                information = { 'italic' },
+              },
+            },
+            indent_blankline = {
+              enabled = true,
+              scope_color = 'lavender',
+              char = '▏',
+            },
+          },
+        }
+        vim.cmd 'colorscheme catppuccin'
+      end,
+    },
+    {
+      'olimorris/onedarkpro.nvim',
+      priority = 1000, -- Ensure it loads first
+      config = function()
+        require('onedarkpro').setup {
+          colors = {}, -- You can customize colors here
+          styles = {
+            comments = 'italic',
+            keywords = 'bold',
+            functions = 'bold',
+            variables = 'NONE',
+          },
+          options = {
+            cursorline = true, -- Highlight current line
+            transparency = false, -- Disable background transparency
+            terminal_colors = true, -- Enable terminal colors
+          },
+        }
+        vim.cmd 'colorscheme onedark_dark' -- Set One Dark Darker as default
       end,
     },
   },
