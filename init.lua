@@ -1078,66 +1078,66 @@ require('lazy').setup({
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 
-    {
-      'nvimtools/none-ls.nvim',
-      dependencies = {
-        'nvimtools/none-ls-extras.nvim',
-        'jayp0521/mason-null-ls.nvim',
-      },
-      config = function()
-        local null_ls = require 'null-ls'
-        local formatting = null_ls.builtins.formatting
-        local diagnostics = null_ls.builtins.diagnostics
-
-        -- Ensure Mason installs formatters/linters
-        require('mason-null-ls').setup {
-          ensure_installed = {
-            'tsserver', -- TypeScript/JavaScript
-            'eslint_d', -- JavaScript linting
-            'pyright', -- Python
-            'pylsp', -- Python Language Server
-            'black', -- Python formatting
-            'ruff', -- Python linter
-            'prettier', -- JS/HTML formatter
-            'stylua', -- Lua formatter
-            'eslint_d', -- JS linter
-            'shfmt', -- Shell formatter
-            'checkmake', -- Makefile linter
-          },
-          automatic_installation = true,
-        }
-
-        local sources = {
-          -- ✅ Correcting imports & formatting for Python
-          formatting.isort, -- Sort imports
-          diagnostics.ruff, -- Ruff for linting
-          formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
-
-          -- Other formatters
-          formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
-          formatting.stylua,
-          formatting.shfmt.with { args = { '-i', '4' } },
-          formatting.terraform_fmt,
-        }
-
-        local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
-        null_ls.setup {
-          sources = sources,
-          on_attach = function(client, bufnr)
-            if client.supports_method 'textDocument/formatting' then
-              vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
-              vim.api.nvim_create_autocmd('BufWritePre', {
-                group = augroup,
-                buffer = bufnr,
-                callback = function()
-                  vim.lsp.buf.format { async = false }
-                end,
-              })
-            end
-          end,
-        }
-      end,
-    },
+    -- {
+    --   'nvimtools/none-ls.nvim',
+    --   dependencies = {
+    --     'nvimtools/none-ls-extras.nvim',
+    --     'jayp0521/mason-null-ls.nvim',
+    --   },
+    --   config = function()
+    --     local null_ls = require 'null-ls'
+    --     local formatting = null_ls.builtins.formatting
+    --     local diagnostics = null_ls.builtins.diagnostics
+    --
+    --     -- Ensure Mason installs formatters/linters
+    --     require('mason-null-ls').setup {
+    --       ensure_installed = {
+    --         'tsserver', -- TypeScript/JavaScript
+    --         'eslint_d', -- JavaScript linting
+    --         'pyright', -- Python
+    --         'pylsp', -- Python Language Server
+    --         'black', -- Python formatting
+    --         'ruff', -- Python linter
+    --         'prettier', -- JS/HTML formatter
+    --         'stylua', -- Lua formatter
+    --         'eslint_d', -- JS linter
+    --         'shfmt', -- Shell formatter
+    --         'checkmake', -- Makefile linter
+    --       },
+    --       automatic_installation = true,
+    --     }
+    --
+    --     local sources = {
+    --       -- ✅ Correcting imports & formatting for Python
+    --       formatting.isort, -- Sort imports
+    --       diagnostics.ruff, -- Ruff for linting
+    --       formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
+    --
+    --       -- Other formatters
+    --       formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
+    --       formatting.stylua,
+    --       formatting.shfmt.with { args = { '-i', '4' } },
+    --       formatting.terraform_fmt,
+    --     }
+    --
+    --     local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+    --     null_ls.setup {
+    --       sources = sources,
+    --       on_attach = function(client, bufnr)
+    --         if client.supports_method 'textDocument/formatting' then
+    --           vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
+    --           vim.api.nvim_create_autocmd('BufWritePre', {
+    --             group = augroup,
+    --             buffer = bufnr,
+    --             callback = function()
+    --               vim.lsp.buf.format { async = false }
+    --             end,
+    --           })
+    --         end
+    --       end,
+    --     }
+    --   end,
+    -- },
 
     --
     -- auto save
@@ -1187,10 +1187,13 @@ require('lazy').setup({
       config = function()
         require('toggleterm').setup {
           size = 15, -- Default terminal size
-          open_mapping = [[T]], -- Open with <leader>t
           shade_terminals = true,
           direction = 'float', -- Options: "horizontal" | "vertical" | "tab" | "float"
         }
+
+        -- Set key binding for normal mode
+        vim.keymap.set('n', 'T', '<cmd>ToggleTerm<CR>', { noremap = true, silent = true, desc = 'Toggle terminal' })
+        vim.api.nvim_set_keymap('t', '<Esc>', [[<C-\><C-n>]], { noremap = true, silent = true })
       end,
     },
     --
@@ -1434,7 +1437,7 @@ vim.api.nvim_set_keymap('n', '<Leader>as', ':lua toggle_autosave()<CR>', { norem
 --
 -- buffer line key bind
 --
-vim.api.nvim_set_keymap('n', '<Tab>', ':BufferLineCycleNext<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<S-Tab>', ':BufferLineCyclePrev<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '=', ':BufferLineCycleNext<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '-', ':BufferLineCyclePrev<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>bd', ':bdelete<CR>', { noremap = true, silent = true }) -- Close buffer
 vim.api.nvim_set_keymap('n', '<Leader>bp', ':BufferLinePick<CR>', { noremap = true, silent = true }) -- Pick buffer
