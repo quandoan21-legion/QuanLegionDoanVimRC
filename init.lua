@@ -1138,6 +1138,19 @@ require('lazy').setup({
     --     }
     --   end,
     -- },
+    --
+    --
+    {
+      'Whenrow/odoo-ls.nvim',
+      dependencies = {
+        'neovim/nvim-lspconfig',
+      },
+      config = function()
+        require('odools').setup {
+          -- Add any configuration options here if needed
+        }
+      end,
+    },
 
     --
     -- auto save
@@ -1201,9 +1214,17 @@ require('lazy').setup({
     --
     {
       'mstuttgart/vscode-odoo-snippets',
+      dependencies = {
+        'L3MON4D3/LuaSnip',
+        'rafamadriz/friendly-snippets',
+      },
       event = 'InsertEnter',
+      config = function()
+        require('luasnip.loaders.from_vscode').lazy_load {
+          paths = { vim.fn.stdpath 'data' .. '/lazy/vscode-odoo-snippets' },
+        }
+      end,
     },
-
     --
     -- python dap
     --
@@ -1357,6 +1378,10 @@ require('lazy').setup({
         vim.cmd 'colorscheme onedark_dark' -- Set One Dark Darker as default
       end,
     },
+
+    --
+    -- Chat gpt
+    --
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -1441,3 +1466,6 @@ vim.api.nvim_set_keymap('n', '=', ':BufferLineCycleNext<CR>', { noremap = true, 
 vim.api.nvim_set_keymap('n', '-', ':BufferLineCyclePrev<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>bd', ':bdelete<CR>', { noremap = true, silent = true }) -- Close buffer
 vim.api.nvim_set_keymap('n', '<Leader>bp', ':BufferLinePick<CR>', { noremap = true, silent = true }) -- Pick buffer
+vim.keymap.set('n', '<leader>cg', '<cmd>ChatGPT<CR>', { desc = 'ChatGPT UI' })
+vim.keymap.set('v', '<leader>ce', ':ChatGPTEditWithInstructions<CR>', { desc = 'Edit with GPT' })
+vim.keymap.set('n', '<leader>cr', '<cmd>ChatGPTRun<CR>', { desc = 'Run GPT Action' })
