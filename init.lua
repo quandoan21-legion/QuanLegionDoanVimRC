@@ -1027,7 +1027,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'onedark_dark'
+      vim.cmd.colorscheme 'onedark'
     end,
   },
 
@@ -1114,66 +1114,66 @@ require('lazy').setup({
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 
-    -- {
-    --   'nvimtools/none-ls.nvim',
-    --   dependencies = {
-    --     'nvimtools/none-ls-extras.nvim',
-    --     'jayp0521/mason-null-ls.nvim',
-    --   },
-    --   config = function()
-    --     local null_ls = require 'null-ls'
-    --     local formatting = null_ls.builtins.formatting
-    --     local diagnostics = null_ls.builtins.diagnostics
-    --
-    --     -- Ensure Mason installs formatters/linters
-    --     require('mason-null-ls').setup {
-    --       ensure_installed = {
-    --         'tsserver', -- TypeScript/JavaScript
-    --         'eslint_d', -- JavaScript linting
-    --         'pyright', -- Python
-    --         'pylsp', -- Python Language Server
-    --         'black', -- Python formatting
-    --         'ruff', -- Python linter
-    --         'prettier', -- JS/HTML formatter
-    --         'stylua', -- Lua formatter
-    --         'eslint_d', -- JS linter
-    --         'shfmt', -- Shell formatter
-    --         'checkmake', -- Makefile linter
-    --       },
-    --       automatic_installation = true,
-    --     }
-    --
-    --     local sources = {
-    --       -- ✅ Correcting imports & formatting for Python
-    --       formatting.isort, -- Sort imports
-    --       diagnostics.ruff, -- Ruff for linting
-    --       formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
-    --
-    --       -- Other formatters
-    --       formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
-    --       formatting.stylua,
-    --       formatting.shfmt.with { args = { '-i', '4' } },
-    --       formatting.terraform_fmt,
-    --     }
-    --
-    --     local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
-    --     null_ls.setup {
-    --       sources = sources,
-    --       on_attach = function(client, bufnr)
-    --         if client.supports_method 'textDocument/formatting' then
-    --           vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
-    --           vim.api.nvim_create_autocmd('BufWritePre', {
-    --             group = augroup,
-    --             buffer = bufnr,
-    --             callback = function()
-    --               vim.lsp.buf.format { async = false }
-    --             end,
-    --           })
-    --         end
-    --       end,
-    --     }
-    --   end,
-    -- },
+    {
+      'nvimtools/none-ls.nvim',
+      dependencies = {
+        'nvimtools/none-ls-extras.nvim',
+        'jayp0521/mason-null-ls.nvim',
+      },
+      config = function()
+        local null_ls = require 'null-ls'
+        local formatting = null_ls.builtins.formatting
+        local diagnostics = null_ls.builtins.diagnostics
+
+        -- Ensure Mason installs formatters/linters
+        require('mason-null-ls').setup {
+          ensure_installed = {
+            'tsserver', -- TypeScript/JavaScript
+            'eslint_d', -- JavaScript linting
+            'pyright', -- Python
+            'pylsp', -- Python Language Server
+            'black', -- Python formatting
+            'ruff', -- Python linter
+            'prettier', -- JS/HTML formatter
+            'stylua', -- Lua formatter
+            'eslint_d', -- JS linter
+            'shfmt', -- Shell formatter
+            'checkmake', -- Makefile linter
+          },
+          automatic_installation = true,
+        }
+
+        local sources = {
+          -- ✅ Correcting imports & formatting for Python
+          formatting.isort, -- Sort imports
+          diagnostics.ruff, -- Ruff for linting
+          formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
+
+          -- Other formatters
+          formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
+          formatting.stylua,
+          formatting.shfmt.with { args = { '-i', '4' } },
+          formatting.terraform_fmt,
+        }
+
+        local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+        null_ls.setup {
+          sources = sources,
+          on_attach = function(client, bufnr)
+            if client.supports_method 'textDocument/formatting' then
+              vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
+              vim.api.nvim_create_autocmd('BufWritePre', {
+                group = augroup,
+                buffer = bufnr,
+                callback = function()
+                  vim.lsp.buf.format { async = false }
+                end,
+              })
+            end
+          end,
+        }
+      end,
+    },
     --
     --
     {
@@ -1390,7 +1390,25 @@ require('lazy').setup({
             },
           },
         }
-        vim.cmd 'colorscheme catppuccin'
+      end,
+    },
+    --
+    -- dadbod and dadbod ui
+    --
+    {
+      'tpope/vim-dadbod', -- The dadbod plugin
+      config = function()
+        -- Optional configuration for vim-dadbod
+        vim.g.db_ui_save_location = '~/.config/nvim/db_ui_saved/'
+      end,
+    },
+    {
+      'kristijanhusak/vim-dadbod-ui', -- The dadbod-ui plugin
+      dependencies = 'tpope/vim-dadbod', -- Ensure vim-dadbod is loaded first
+      config = function()
+        -- Optional configuration for dadbod-ui
+        vim.g.db_ui_force_buffers = 1
+        vim.g.db_ui_win_position = 'right' -- Position the UI on the right side
       end,
     },
     {
@@ -1505,3 +1523,8 @@ vim.api.nvim_set_keymap('n', '<Leader>bp', ':BufferLinePick<CR>', { noremap = tr
 vim.keymap.set('n', '<leader>cg', '<cmd>ChatGPT<CR>', { desc = 'ChatGPT UI' })
 vim.keymap.set('v', '<leader>ce', ':ChatGPTEditWithInstructions<CR>', { desc = 'Edit with GPT' })
 vim.keymap.set('n', '<leader>cr', '<cmd>ChatGPTRun<CR>', { desc = 'Run GPT Action' })
+-- Keymaps for vim-dadbod and dadbod-ui
+vim.api.nvim_set_keymap('n', '<Leader>db', ':DBUI<CR>', { noremap = true, silent = true }) -- Open DB UI
+vim.api.nvim_set_keymap('n', '<Leader>dc', ':DBReconnect<CR>', { noremap = true, silent = true }) -- Reconnect to database
+vim.api.nvim_set_keymap('n', '<Leader>ds', ':DBSearch<CR>', { noremap = true, silent = true }) -- Search database
+vim.api.nvim_set_keymap('n', '<Leader>dt', ':DBToggle<CR>', { noremap = true, silent = true }) -- Toggle database UI
