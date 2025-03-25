@@ -1527,4 +1527,4 @@ vim.keymap.set('n', '<leader>cr', '<cmd>ChatGPTRun<CR>', { desc = 'Run GPT Actio
 vim.api.nvim_set_keymap('n', '<Leader>db', ':DBUI<CR>', { noremap = true, silent = true }) -- Open DB UI
 vim.api.nvim_set_keymap('n', '<Leader>dc', ':DBReconnect<CR>', { noremap = true, silent = true }) -- Reconnect to database
 vim.api.nvim_set_keymap('n', '<Leader>ds', ':DBSearch<CR>', { noremap = true, silent = true }) -- Search database
-vim.api.nvim_set_keymap('n', '<Leader>dt', ':DBToggle<CR>', { noremap = true, silent = true }) -- Toggle database UI
+vim.api.nvim_set_keymap('n', '<Leader>dt', ':DBUIClose<CR>', { noremap = true, silent = true }) -- Toggle database UI
