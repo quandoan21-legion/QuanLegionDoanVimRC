@@ -696,6 +696,9 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         pyright = {},
+        ast_grep = {},
+        biome = {},
+        lemminx = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -703,7 +706,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
         --
 
         lua_ls = {
@@ -1027,7 +1030,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'onedark'
+      vim.cmd.colorscheme 'onedark_dark'
     end,
   },
 
@@ -1116,8 +1119,8 @@ require('lazy').setup({
 
     {
       'nvimtools/none-ls.nvim',
+      'nvimtools/none-ls-extras.nvim',
       dependencies = {
-        'nvimtools/none-ls-extras.nvim',
         'jayp0521/mason-null-ls.nvim',
       },
       config = function()
@@ -1139,6 +1142,10 @@ require('lazy').setup({
             'eslint_d', -- JS linter
             'shfmt', -- Shell formatter
             'checkmake', -- Makefile linter
+            'biome',
+            'ast_grep',
+            'lemminx',
+            'ts_ls',
           },
           automatic_installation = true,
         }
@@ -1176,17 +1183,17 @@ require('lazy').setup({
     },
     --
     --
-    {
-      'Whenrow/odoo-ls.nvim',
-      dependencies = {
-        'neovim/nvim-lspconfig',
-      },
-      config = function()
-        require('odools').setup {
-          -- Add any configuration options here if needed
-        }
-      end,
-    },
+    -- {
+    --   'Whenrow/odoo-ls.nvim',
+    --   dependencies = {
+    --     'neovim/nvim-lspconfig',
+    --   },
+    --   config = function()
+    --     require('odools').setup {
+    --       -- Add any configuration options here if needed
+    --     }
+    --   end,
+    -- },
 
     --
     -- auto save
@@ -1436,6 +1443,44 @@ require('lazy').setup({
     --
     -- Chat gpt
     --
+    {
+      'folke/noice.nvim',
+      event = 'VeryLazy',
+      dependencies = {
+        'MunifTanjim/nui.nvim',
+        'rcarriga/nvim-notify',
+      },
+      opts = {
+        cmdline = {
+          enabled = true,
+          view = 'cmdline_popup',
+          format = {
+            cmdline = { icon = '' },
+            search_down = { icon = ' ' },
+            search_up = { icon = ' ' },
+          },
+        },
+        views = {
+          cmdline_popup = {
+            position = {
+              row = '25%', -- 80% from the top
+              col = '50%', -- center horizontally
+            },
+            size = {
+              width = 60,
+              height = 'auto',
+            },
+            border = {
+              style = 'rounded',
+              padding = { 1, 2 },
+            },
+            win_options = {
+              winhighlight = 'NormalFloat:NormalFloat,FloatBorder:FloatBorder',
+            },
+          },
+        },
+      },
+    },
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -1448,7 +1493,7 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
@@ -1528,3 +1573,4 @@ vim.api.nvim_set_keymap('n', '<Leader>db', ':DBUI<CR>', { noremap = true, silent
 vim.api.nvim_set_keymap('n', '<Leader>dc', ':DBReconnect<CR>', { noremap = true, silent = true }) -- Reconnect to database
 vim.api.nvim_set_keymap('n', '<Leader>ds', ':DBSearch<CR>', { noremap = true, silent = true }) -- Search database
 vim.api.nvim_set_keymap('n', '<Leader>dt', ':DBUIClose<CR>', { noremap = true, silent = true }) -- Toggle database UI
+vim.keymap.set('n', '<leader>x', ':bd<CR>', { desc = 'Close buffer' })
