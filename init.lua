@@ -1191,19 +1191,6 @@ require('lazy').setup({
         }
       end,
     },
-    --
-    --
-    {
-      'Whenrow/odoo-ls.nvim',
-      dependencies = {
-        'neovim/nvim-lspconfig',
-      },
-      config = function()
-        require('odools').setup {
-          -- Add any configuration options here if needed
-        }
-      end,
-    },
 
     --
     -- auto save
