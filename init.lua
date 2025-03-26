@@ -526,7 +526,7 @@ require('lazy').setup({
       local lspconfig = require 'lspconfig'
 
       -- Setup JavaScript/TypeScript
-      lspconfig.tsserver.setup {}
+      lspconfig.ts_ls.setup {}
 
       -- Setup Python
       lspconfig.pylsp.setup {
@@ -696,6 +696,7 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         pyright = {},
+        xmlformatter = {},
         ast_grep = {},
         biome = {},
         lemminx = {},
@@ -739,7 +740,7 @@ require('lazy').setup({
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {
-        'tsserver', -- TypeScript/JavaScript
+        'ts_ls', -- TypeScript/JavaScript
         'eslint_d', -- JavaScript linting
         'pyright', -- Python
         'pylsp', -- Python Language Server
@@ -1089,6 +1090,7 @@ require('lazy').setup({
         'json',
         'bash',
         'c',
+        'xml',
         'diff',
         'html',
         'lua',
@@ -1118,6 +1120,13 @@ require('lazy').setup({
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 
     {
+      'mbbill/undotree',
+      cmd = 'UndotreeToggle',
+      keys = {
+        { '<leader>u', '<cmd>UndotreeToggle<CR>', desc = 'Toggle Undotree' },
+      },
+    },
+    {
       'nvimtools/none-ls.nvim',
       'nvimtools/none-ls-extras.nvim',
       dependencies = {
@@ -1131,7 +1140,8 @@ require('lazy').setup({
         -- Ensure Mason installs formatters/linters
         require('mason-null-ls').setup {
           ensure_installed = {
-            'tsserver', -- TypeScript/JavaScript
+            'xmlformatter',
+            'ts_ls', -- TypeScript/JavaScript
             'eslint_d', -- JavaScript linting
             'pyright', -- Python
             'pylsp', -- Python Language Server
@@ -1183,17 +1193,17 @@ require('lazy').setup({
     },
     --
     --
-    -- {
-    --   'Whenrow/odoo-ls.nvim',
-    --   dependencies = {
-    --     'neovim/nvim-lspconfig',
-    --   },
-    --   config = function()
-    --     require('odools').setup {
-    --       -- Add any configuration options here if needed
-    --     }
-    --   end,
-    -- },
+    {
+      'Whenrow/odoo-ls.nvim',
+      dependencies = {
+        'neovim/nvim-lspconfig',
+      },
+      config = function()
+        require('odools').setup {
+          -- Add any configuration options here if needed
+        }
+      end,
+    },
 
     --
     -- auto save
