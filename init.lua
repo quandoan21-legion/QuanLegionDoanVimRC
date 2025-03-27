@@ -1373,6 +1373,37 @@ require('lazy').setup({
       config = true,
     },
     {
+      'kopecmaciej/vi-mongo.nvim',
+      config = function()
+        require('vi-mongo').setup()
+      end,
+      cmd = { 'ViMongo' },
+      keys = {
+        { '<leader>vm', '<cmd>ViMongo<cr>', desc = 'ViMongo' },
+      },
+    },
+    {
+      'karb94/neoscroll.nvim',
+      config = function()
+        require('neoscroll').setup {
+          -- Easing + performance
+          hide_cursor = true,
+          stop_eof = true,
+          respect_scrolloff = true,
+          cursor_scrolls_alone = true,
+          easing_function = 'sine', -- or try: "circular", "quintic", etc.
+          performance_mode = false,
+        }
+
+        -- Optional: Custom mappings for smoother scroll
+        local t = {}
+        t['<C-u>'] = { 'scroll', { '-vim.wo.scroll', 'true', '250' } }
+        t['<C-d>'] = { 'scroll', { 'vim.wo.scroll', 'true', '250' } }
+
+        require('neoscroll.config').set_mappings(t)
+      end,
+    },
+    {
       'tpope/vim-dadbod',
       dependencies = {
         'kristijanhusak/vim-dadbod-ui',
