@@ -1205,7 +1205,7 @@ require('lazy').setup({
             'pyright', -- Python
             'pylsp', -- Python Language Server
             'black', -- Python formatting
-            'ruff', -- Python linter
+            -- 'ruff', -- Python linter
             'prettier', -- JS/HTML formatter
             'stylua', -- Lua formatter
             'eslint_d', -- JS linter
@@ -1218,8 +1218,8 @@ require('lazy').setup({
         local sources = {
           -- ✅ Correcting imports & formatting for Python
           formatting.isort, -- Sort imports
-          diagnostics.ruff, -- Ruff for linting
-          formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
+          -- diagnostics.ruff, -- Ruff for linting
+          -- formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
 
           -- Other formatters
           formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
@@ -1328,7 +1328,7 @@ require('lazy').setup({
     -- ,
     {
       'rcarriga/nvim-dap-ui',
-      dependencies = 'mfussenegger/nvim-dap',
+      dependencies = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio' },
       config = function()
         local dap = require 'dap'
         local dapui = require 'dapui'
@@ -1356,6 +1356,7 @@ require('lazy').setup({
       ft = 'python',
       dependencies = {
         'mfussenegger/nvim-dap',
+        'rcarriga/nvim-dap-ui',
       },
       config = function(_, opts)
         local path = '~/.local/share/nvim/mason/packages/debugpy/venv/bin/python'
@@ -1449,7 +1450,7 @@ require('lazy').setup({
         t['<C-u>'] = { 'scroll', { '-vim.wo.scroll', 'true', '250' } }
         t['<C-d>'] = { 'scroll', { 'vim.wo.scroll', 'true', '250' } }
 
-        require('neoscroll.config').set_mappings(t)
+        require('neoscroll.config').setup(t)
       end,
     },
     {
@@ -1566,7 +1567,7 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  require 'kickstart.plugins.debug',
+  -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
