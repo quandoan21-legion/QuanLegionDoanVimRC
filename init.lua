@@ -1,4 +1,3 @@
-import = 'custom.plugins',
 --[[
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
@@ -1326,78 +1325,44 @@ require('lazy').setup({
     --
     -- python dap
     --
+    -- ,
     {
-      'mfussenegger/nvim-dap-python',
-      ft = 'python',
+      'rcarriga/nvim-dap-ui',
+      dependencies = 'mfussenegger/nvim-dap',
       config = function()
-        local venv = os.getenv 'VIRTUAL_ENV'
-        local python_path = venv and (venv .. '/bin/python') or '/usr/bin/python3'
+        local dap = require 'dap'
+        local dapui = require 'dapui'
 
-        local dap_python = require 'dap-python'
-        dap_python.setup(python_path)
+        dapui.setup()
+
+        dap.listeners.after.event_initialized['dapui_config'] = function()
+          dapui.open()
+        end
+
+        dap.listeners.before.event_terminated['dapui_config'] = function()
+          dapui.close()
+        end
+
+        dap.listeners.before.event_exited['dapui_config'] = function()
+          dapui.close()
+        end
       end,
     },
     {
       'mfussenegger/nvim-dap',
+    },
+    {
+      'mfussenegger/nvim-dap-python',
+      ft = 'python',
       dependencies = {
-        {
-          'mfussenegger/nvim-dap-python',
-          config = function()
-            -- Auto-detect Python interpreter (prefers virtualenv if available)
-            local venv = os.getenv 'VIRTUAL_ENV'
-            local python_path = venv and (venv .. '/bin/python') or '/usr/bin/python3'
-
-            local dap_python = require 'dap-python'
-            dap_python.setup(python_path)
-          end,
-          ft = 'python',
-        },
-        {
-          'rcarriga/nvim-dap-ui',
-          config = function()
-            local dap = require 'dap'
-            local dapui = require 'dapui'
-
-            dapui.setup()
-
-            dap.listeners.after.event_initialized['dapui_config'] = function()
-              dapui.open()
-            end
-            dap.listeners.before.event_terminated['dapui_config'] = function()
-              dapui.close()
-            end
-            dap.listeners.before.event_exited['dapui_config'] = function()
-              dapui.close()
-            end
-          end,
-        },
+        'mfussenegger/nvim-dap',
       },
-      config = function()
-        local dap = require 'dap'
-        local map = vim.keymap.set
-        local opts = { noremap = true, silent = true, desc = '[DAP]' }
-
-        -- Keybindings for debugging
-        map('n', '<F5>', function()
-          dap.continue()
-        end, { desc = '[DAP] Start / Continue' })
-        map('n', '<F10>', function()
-          dap.step_over()
-        end, { desc = '[DAP] Step Over' })
-        map('n', '<F11>', function()
-          dap.step_into()
-        end, { desc = '[DAP] Step Into' })
-        map('n', '<F12>', function()
-          dap.step_out()
-        end, { desc = '[DAP] Step Out' })
-        map('n', '<Leader>db', function()
-          dap.toggle_breakpoint()
-        end, { desc = '[DAP] Toggle Breakpoint' })
-        map('n', '<Leader>dr', function()
-          dap.repl.open()
-        end, { desc = '[DAP] Open REPL' })
+      config = function(_, opts)
+        local path = '~/.local/share/nvim/mason/packages/debugpy/venv/bin/python'
+        require('dap-python').setup(path)
       end,
     },
+
     --
     -- buffer line
     --
@@ -1679,7 +1644,7 @@ vim.keymap.set('v', '<leader>ce', ':ChatGPTEditWithInstructions<CR>', { desc = '
 vim.keymap.set('n', '<leader>cr', '<cmd>ChatGPTRun<CR>', { desc = 'Run GPT Action' })
 vim.keymap.set('n', '<leader>du', function()
   require('dapui').toggle()
-end, { desc = '[DAP] Toggle UI' })
+end, { desc = '[D]AP [U]I Toggle' })
 -- Open/close DB UI
 vim.keymap.set('n', '<leader>db', '<cmd>DBUI<CR>', { desc = 'Open DB UI' })
 
