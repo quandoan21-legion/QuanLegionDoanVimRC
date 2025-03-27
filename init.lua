@@ -526,7 +526,7 @@ require('lazy').setup({
       local lspconfig = require 'lspconfig'
 
       -- Setup JavaScript/TypeScript
-      lspconfig.tsserver.setup {}
+      lspconfig.ts_ls.setup {}
 
       -- Setup Python
       lspconfig.pylsp.setup {
@@ -736,7 +736,7 @@ require('lazy').setup({
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {
-        'tsserver', -- TypeScript/JavaScript
+        'ts_ls', -- TypeScript/JavaScript
         'eslint_d', -- JavaScript linting
         'pyright', -- Python
         'pylsp', -- Python Language Server
@@ -1114,66 +1114,138 @@ require('lazy').setup({
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 
-    -- {
-    --   'nvimtools/none-ls.nvim',
-    --   dependencies = {
-    --     'nvimtools/none-ls-extras.nvim',
-    --     'jayp0521/mason-null-ls.nvim',
-    --   },
-    --   config = function()
-    --     local null_ls = require 'null-ls'
-    --     local formatting = null_ls.builtins.formatting
-    --     local diagnostics = null_ls.builtins.diagnostics
-    --
-    --     -- Ensure Mason installs formatters/linters
-    --     require('mason-null-ls').setup {
-    --       ensure_installed = {
-    --         'tsserver', -- TypeScript/JavaScript
-    --         'eslint_d', -- JavaScript linting
-    --         'pyright', -- Python
-    --         'pylsp', -- Python Language Server
-    --         'black', -- Python formatting
-    --         'ruff', -- Python linter
-    --         'prettier', -- JS/HTML formatter
-    --         'stylua', -- Lua formatter
-    --         'eslint_d', -- JS linter
-    --         'shfmt', -- Shell formatter
-    --         'checkmake', -- Makefile linter
-    --       },
-    --       automatic_installation = true,
-    --     }
-    --
-    --     local sources = {
-    --       -- ✅ Correcting imports & formatting for Python
-    --       formatting.isort, -- Sort imports
-    --       diagnostics.ruff, -- Ruff for linting
-    --       formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
-    --
-    --       -- Other formatters
-    --       formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
-    --       formatting.stylua,
-    --       formatting.shfmt.with { args = { '-i', '4' } },
-    --       formatting.terraform_fmt,
-    --     }
-    --
-    --     local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
-    --     null_ls.setup {
-    --       sources = sources,
-    --       on_attach = function(client, bufnr)
-    --         if client.supports_method 'textDocument/formatting' then
-    --           vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
-    --           vim.api.nvim_create_autocmd('BufWritePre', {
-    --             group = augroup,
-    --             buffer = bufnr,
-    --             callback = function()
-    --               vim.lsp.buf.format { async = false }
-    --             end,
-    --           })
-    --         end
-    --       end,
-    --     }
-    --   end,
-    -- },
+    {
+      'folke/noice.nvim',
+      event = 'VeryLazy',
+      dependencies = {
+        'MunifTanjim/nui.nvim',
+        'rcarriga/nvim-notify',
+      },
+      config = function()
+        require('noice').setup {
+          -- Enable command-line UI
+          cmdline = {
+            enabled = true,
+            view = 'cmdline_popup',
+          },
+          -- Enable search UI popup
+          messages = {
+            enabled = true,
+          },
+          -- Configure popup positions
+          views = {
+            notify = {
+              backend = 'notify',
+              render = 'minimal', -- ✨ makes notifications minimal
+              replace = true,
+              merge = true,
+            },
+            cmdline_popup = {
+              position = {
+                row = '20%', -- <== 👈 Move the cmdline 20% from top
+                col = '50%',
+              },
+              size = {
+                width = 60,
+                height = 'auto',
+              },
+              border = {
+                style = 'rounded',
+              },
+              win_options = {
+                winhighlight = 'Normal:Normal,FloatBorder:FloatBorder',
+              },
+            },
+            popupmenu = {
+              relative = 'editor',
+              position = {
+                row = '25%',
+                col = '50%',
+              },
+              size = {
+                width = 60,
+                height = 10,
+              },
+              border = {
+                style = 'rounded',
+                padding = { 0, 1 },
+              },
+              win_options = {
+                winhighlight = 'Normal:Normal,FloatBorder:FloatBorder',
+              },
+            },
+          },
+          presets = {
+            bottom_search = false, -- you want popup search, not bottom one
+            command_palette = false,
+            long_message_to_split = true,
+          },
+        }
+
+        -- Optional: Replace native `vim.notify` with prettier version
+        vim.notify = require 'notify'
+      end,
+    },
+    {
+      'nvimtools/none-ls.nvim',
+      dependencies = {
+        'nvimtools/none-ls-extras.nvim',
+        'jayp0521/mason-null-ls.nvim',
+      },
+      config = function()
+        local null_ls = require 'null-ls'
+        local formatting = null_ls.builtins.formatting
+        local diagnostics = null_ls.builtins.diagnostics
+
+        -- Ensure Mason installs formatters/linters
+        require('mason-null-ls').setup {
+          ensure_installed = {
+            'ts_ls', -- TypeScript/JavaScript
+            'eslint_d', -- JavaScript linting
+            'pyright', -- Python
+            'pylsp', -- Python Language Server
+            'black', -- Python formatting
+            'ruff', -- Python linter
+            'prettier', -- JS/HTML formatter
+            'stylua', -- Lua formatter
+            'eslint_d', -- JS linter
+            'shfmt', -- Shell formatter
+            'checkmake', -- Makefile linter
+          },
+          automatic_installation = true,
+        }
+
+        local sources = {
+          -- ✅ Correcting imports & formatting for Python
+          formatting.isort, -- Sort imports
+          diagnostics.ruff, -- Ruff for linting
+          formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
+
+          -- Other formatters
+          formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
+          formatting.stylua,
+          formatting.shfmt.with { args = { '-i', '4' } },
+          formatting.terraform_fmt,
+        }
+
+        local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+        null_ls.setup {
+          sources = sources,
+          on_attach = function(client, bufnr)
+            if client.supports_method 'textDocument/formatting' then
+              vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
+              vim.api.nvim_create_autocmd('BufWritePre', {
+                group = augroup,
+                buffer = bufnr,
+                callback = function()
+                  vim.lsp.buf.format { async = false }
+                end,
+              })
+            end
+          end,
+        }
+      end,
+    },
     --
     --
 
