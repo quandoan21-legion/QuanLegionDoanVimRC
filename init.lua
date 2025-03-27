@@ -526,7 +526,7 @@ require('lazy').setup({
       local lspconfig = require 'lspconfig'
 
       -- Setup JavaScript/TypeScript
-      lspconfig.ts_ls.setup {}
+      lspconfig.tsserver.setup {}
 
       -- Setup Python
       lspconfig.pylsp.setup {
@@ -696,10 +696,6 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         pyright = {},
-        xmlformatter = {},
-        ast_grep = {},
-        biome = {},
-        lemminx = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -707,7 +703,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
+        -- ts_ls = {},
         --
 
         lua_ls = {
@@ -740,7 +736,7 @@ require('lazy').setup({
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {
-        'ts_ls', -- TypeScript/JavaScript
+        'tsserver', -- TypeScript/JavaScript
         'eslint_d', -- JavaScript linting
         'pyright', -- Python
         'pylsp', -- Python Language Server
@@ -1090,7 +1086,6 @@ require('lazy').setup({
         'json',
         'bash',
         'c',
-        'xml',
         'diff',
         'html',
         'lua',
@@ -1119,78 +1114,68 @@ require('lazy').setup({
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 
-    {
-      'mbbill/undotree',
-      cmd = 'UndotreeToggle',
-      keys = {
-        { '<leader>u', '<cmd>UndotreeToggle<CR>', desc = 'Toggle Undotree' },
-      },
-    },
-    {
-      'nvimtools/none-ls.nvim',
-      'nvimtools/none-ls-extras.nvim',
-      dependencies = {
-        'jayp0521/mason-null-ls.nvim',
-      },
-      config = function()
-        local null_ls = require 'null-ls'
-        local formatting = null_ls.builtins.formatting
-        local diagnostics = null_ls.builtins.diagnostics
-
-        -- Ensure Mason installs formatters/linters
-        require('mason-null-ls').setup {
-          ensure_installed = {
-            'xmlformatter',
-            'ts_ls', -- TypeScript/JavaScript
-            'eslint_d', -- JavaScript linting
-            'pyright', -- Python
-            'pylsp', -- Python Language Server
-            'black', -- Python formatting
-            'ruff', -- Python linter
-            'prettier', -- JS/HTML formatter
-            'stylua', -- Lua formatter
-            'eslint_d', -- JS linter
-            'shfmt', -- Shell formatter
-            'checkmake', -- Makefile linter
-            'biome',
-            'ast_grep',
-            'lemminx',
-            'ts_ls',
-          },
-          automatic_installation = true,
-        }
-
-        local sources = {
-          -- ✅ Correcting imports & formatting for Python
-          formatting.isort, -- Sort imports
-          diagnostics.ruff, -- Ruff for linting
-          formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
-
-          -- Other formatters
-          formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
-          formatting.stylua,
-          formatting.shfmt.with { args = { '-i', '4' } },
-          formatting.terraform_fmt,
-        }
-
-        local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
-        null_ls.setup {
-          sources = sources,
-          on_attach = function(client, bufnr)
-            if client.supports_method 'textDocument/formatting' then
-              vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
-              vim.api.nvim_create_autocmd('BufWritePre', {
-                group = augroup,
-                buffer = bufnr,
-                callback = function()
-                  vim.lsp.buf.format { async = false }
-                end,
-              })
-            end
-          end,
-        }
-      end,
-    },
+    -- {
+    --   'nvimtools/none-ls.nvim',
+    --   dependencies = {
+    --     'nvimtools/none-ls-extras.nvim',
+    --     'jayp0521/mason-null-ls.nvim',
+    --   },
+    --   config = function()
+    --     local null_ls = require 'null-ls'
+    --     local formatting = null_ls.builtins.formatting
+    --     local diagnostics = null_ls.builtins.diagnostics
+    --
+    --     -- Ensure Mason installs formatters/linters
+    --     require('mason-null-ls').setup {
+    --       ensure_installed = {
+    --         'tsserver', -- TypeScript/JavaScript
+    --         'eslint_d', -- JavaScript linting
+    --         'pyright', -- Python
+    --         'pylsp', -- Python Language Server
+    --         'black', -- Python formatting
+    --         'ruff', -- Python linter
+    --         'prettier', -- JS/HTML formatter
+    --         'stylua', -- Lua formatter
+    --         'eslint_d', -- JS linter
+    --         'shfmt', -- Shell formatter
+    --         'checkmake', -- Makefile linter
+    --       },
+    --       automatic_installation = true,
+    --     }
+    --
+    --     local sources = {
+    --       -- ✅ Correcting imports & formatting for Python
+    --       formatting.isort, -- Sort imports
+    --       diagnostics.ruff, -- Ruff for linting
+    --       formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
+    --
+    --       -- Other formatters
+    --       formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
+    --       formatting.stylua,
+    --       formatting.shfmt.with { args = { '-i', '4' } },
+    --       formatting.terraform_fmt,
+    --     }
+    --
+    --     local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+    --     null_ls.setup {
+    --       sources = sources,
+    --       on_attach = function(client, bufnr)
+    --         if client.supports_method 'textDocument/formatting' then
+    --           vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
+    --           vim.api.nvim_create_autocmd('BufWritePre', {
+    --             group = augroup,
+    --             buffer = bufnr,
+    --             callback = function()
+    --               vim.lsp.buf.format { async = false }
+    --             end,
+    --           })
+    --         end
+    --       end,
+    --     }
+    --   end,
+    -- },
+    --
+    --
 
     --
     -- auto save
@@ -1268,8 +1253,67 @@ require('lazy').setup({
     --
     -- python dap
     --
-    { 'mfussenegger/nvim-dap-python' },
+    {
+      'mfussenegger/nvim-dap',
+      dependencies = {
+        {
+          'mfussenegger/nvim-dap-python',
+          config = function()
+            -- Auto-detect Python interpreter (prefers virtualenv if available)
+            local venv = os.getenv 'VIRTUAL_ENV'
+            local python_path = venv and (venv .. '/bin/python') or '/usr/bin/python3'
 
+            local dap_python = require 'dap-python'
+            dap_python.setup(python_path)
+          end,
+          ft = 'python',
+        },
+        {
+          'rcarriga/nvim-dap-ui',
+          config = function()
+            local dap = require 'dap'
+            local dapui = require 'dapui'
+
+            dapui.setup()
+
+            dap.listeners.after.event_initialized['dapui_config'] = function()
+              dapui.open()
+            end
+            dap.listeners.before.event_terminated['dapui_config'] = function()
+              dapui.close()
+            end
+            dap.listeners.before.event_exited['dapui_config'] = function()
+              dapui.close()
+            end
+          end,
+        },
+      },
+      config = function()
+        local dap = require 'dap'
+        local map = vim.keymap.set
+        local opts = { noremap = true, silent = true, desc = '[DAP]' }
+
+        -- Keybindings for debugging
+        map('n', '<F5>', function()
+          dap.continue()
+        end, { desc = '[DAP] Start / Continue' })
+        map('n', '<F10>', function()
+          dap.step_over()
+        end, { desc = '[DAP] Step Over' })
+        map('n', '<F11>', function()
+          dap.step_into()
+        end, { desc = '[DAP] Step Into' })
+        map('n', '<F12>', function()
+          dap.step_out()
+        end, { desc = '[DAP] Step Out' })
+        map('n', '<Leader>db', function()
+          dap.toggle_breakpoint()
+        end, { desc = '[DAP] Toggle Breakpoint' })
+        map('n', '<Leader>dr', function()
+          dap.repl.open()
+        end, { desc = '[DAP] Open REPL' })
+      end,
+    },
     --
     -- buffer line
     --
@@ -1328,7 +1372,16 @@ require('lazy').setup({
       dependencies = 'nvim-treesitter/nvim-treesitter',
       config = true,
     },
-
+    {
+      'tpope/vim-dadbod',
+      dependencies = {
+        'kristijanhusak/vim-dadbod-ui',
+        'kristijanhusak/vim-dadbod-completion',
+      },
+      config = function()
+        vim.g.db_ui_use_nerd_fonts = 1
+      end,
+    },
     --
     -- indent blank line
     --
@@ -1394,25 +1447,7 @@ require('lazy').setup({
             },
           },
         }
-      end,
-    },
-    --
-    -- dadbod and dadbod ui
-    --
-    {
-      'tpope/vim-dadbod', -- The dadbod plugin
-      config = function()
-        -- Optional configuration for vim-dadbod
-        vim.g.db_ui_save_location = '~/.config/nvim/db_ui_saved/'
-      end,
-    },
-    {
-      'kristijanhusak/vim-dadbod-ui', -- The dadbod-ui plugin
-      dependencies = 'tpope/vim-dadbod', -- Ensure vim-dadbod is loaded first
-      config = function()
-        -- Optional configuration for dadbod-ui
-        vim.g.db_ui_force_buffers = 1
-        vim.g.db_ui_win_position = 'right' -- Position the UI on the right side
+        vim.cmd 'colorscheme catppuccin'
       end,
     },
     {
@@ -1440,44 +1475,6 @@ require('lazy').setup({
     --
     -- Chat gpt
     --
-    {
-      'folke/noice.nvim',
-      event = 'VeryLazy',
-      dependencies = {
-        'MunifTanjim/nui.nvim',
-        'rcarriga/nvim-notify',
-      },
-      opts = {
-        cmdline = {
-          enabled = true,
-          view = 'cmdline_popup',
-          format = {
-            cmdline = { icon = '' },
-            search_down = { icon = ' ' },
-            search_up = { icon = ' ' },
-          },
-        },
-        views = {
-          cmdline_popup = {
-            position = {
-              row = '25%', -- 80% from the top
-              col = '50%', -- center horizontally
-            },
-            size = {
-              width = 60,
-              height = 'auto',
-            },
-            border = {
-              style = 'rounded',
-              padding = { 1, 2 },
-            },
-            win_options = {
-              winhighlight = 'NormalFloat:NormalFloat,FloatBorder:FloatBorder',
-            },
-          },
-        },
-      },
-    },
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -1490,7 +1487,7 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   require 'kickstart.plugins.debug',
-  require 'kickstart.plugins.indent_line',
+  -- require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
@@ -1565,9 +1562,14 @@ vim.api.nvim_set_keymap('n', '<Leader>bp', ':BufferLinePick<CR>', { noremap = tr
 vim.keymap.set('n', '<leader>cg', '<cmd>ChatGPT<CR>', { desc = 'ChatGPT UI' })
 vim.keymap.set('v', '<leader>ce', ':ChatGPTEditWithInstructions<CR>', { desc = 'Edit with GPT' })
 vim.keymap.set('n', '<leader>cr', '<cmd>ChatGPTRun<CR>', { desc = 'Run GPT Action' })
--- Keymaps for vim-dadbod and dadbod-ui
-vim.api.nvim_set_keymap('n', '<Leader>db', ':DBUI<CR>', { noremap = true, silent = true }) -- Open DB UI
-vim.api.nvim_set_keymap('n', '<Leader>dc', ':DBReconnect<CR>', { noremap = true, silent = true }) -- Reconnect to database
-vim.api.nvim_set_keymap('n', '<Leader>ds', ':DBSearch<CR>', { noremap = true, silent = true }) -- Search database
-vim.api.nvim_set_keymap('n', '<Leader>dt', ':DBUIClose<CR>', { noremap = true, silent = true }) -- Toggle database UI
-vim.keymap.set('n', '<leader>x', ':bd<CR>', { desc = 'Close buffer' })
+vim.keymap.set('n', '<leader>du', function()
+  require('dapui').toggle()
+end, { desc = '[DAP] Toggle UI' })
+-- Open/close DB UI
+vim.keymap.set('n', '<leader>db', '<cmd>DBUI<CR>', { desc = 'Open DB UI' })
+
+-- Toggle DB UI
+vim.keymap.set('n', '<leader>dt', '<cmd>DBUIToggle<CR>', { desc = 'Toggle DB UI' })
+
+-- Save current query buffer and execute it
+vim.keymap.set('n', '<leader>dq', '<cmd>DB<CR>', { desc = 'Execute SQL Query' })
