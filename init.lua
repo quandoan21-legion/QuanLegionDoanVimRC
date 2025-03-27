@@ -1,3 +1,4 @@
+import = 'custom.plugins',
 --[[
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
@@ -1326,6 +1327,17 @@ require('lazy').setup({
     -- python dap
     --
     {
+      'mfussenegger/nvim-dap-python',
+      ft = 'python',
+      config = function()
+        local venv = os.getenv 'VIRTUAL_ENV'
+        local python_path = venv and (venv .. '/bin/python') or '/usr/bin/python3'
+
+        local dap_python = require 'dap-python'
+        dap_python.setup(python_path)
+      end,
+    },
+    {
       'mfussenegger/nvim-dap',
       dependencies = {
         {
@@ -1676,3 +1688,4 @@ vim.keymap.set('n', '<leader>dt', '<cmd>DBUIToggle<CR>', { desc = 'Toggle DB UI'
 
 -- Save current query buffer and execute it
 vim.keymap.set('n', '<leader>dq', '<cmd>DB<CR>', { desc = 'Execute SQL Query' })
+vim.keymap.set('n', '<leader>x', ':bd!<CR>', { noremap = true, silent = true, desc = 'Force Close Buffer' })
