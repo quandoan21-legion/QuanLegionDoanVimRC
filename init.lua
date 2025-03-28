@@ -1392,27 +1392,6 @@ require('lazy').setup({
       },
     },
     {
-      'karb94/neoscroll.nvim',
-      config = function()
-        require('neoscroll').setup {
-          -- Easing + performance
-          hide_cursor = true,
-          stop_eof = true,
-          respect_scrolloff = true,
-          cursor_scrolls_alone = true,
-          easing_function = 'sine', -- or try: "circular", "quintic", etc.
-          performance_mode = false,
-        }
-
-        -- Optional: Custom mappings for smoother scroll
-        local t = {}
-        t['<C-u>'] = { 'scroll', { '-vim.wo.scroll', 'true', '250' } }
-        t['<C-d>'] = { 'scroll', { 'vim.wo.scroll', 'true', '250' } }
-
-        require('neoscroll.config').setup(t)
-      end,
-    },
-    {
       'tpope/vim-dadbod',
       dependencies = {
         'kristijanhusak/vim-dadbod-ui',
@@ -1489,6 +1468,57 @@ require('lazy').setup({
         }
         vim.cmd 'colorscheme catppuccin'
       end,
+    },
+    {
+      'mbbill/undotree',
+      keys = {
+        { '<leader>u', '<cmd>UndotreeToggle<CR>', desc = 'Toggle UndoTree' },
+      },
+      config = function()
+        vim.g.undotree_SetFocusWhenToggle = 1
+      end,
+    },
+    {
+      'gbprod/yanky.nvim',
+      opts = {
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+        ring = {
+          history_length = 100,
+          storage = 'shada',
+          storage_path = vim.fn.stdpath 'data' .. '/databases/yanky.db', -- Only for sqlite storage
+          sync_with_numbered_registers = true,
+          cancel_event = 'update',
+          ignore_registers = { '_' },
+          update_register_on_cycle = false,
+          permanent_wrapper = nil,
+        },
+        picker = {
+          select = {
+            action = nil, -- nil to use default put action
+          },
+          telescope = {
+            use_default_mappings = true, -- if default mappings should be used
+            mappings = nil, -- nil to use default mappings or no mappings (see `use_default_mappings`)
+          },
+        },
+        system_clipboard = {
+          sync_with_ring = true,
+          clipboard_register = nil,
+        },
+        highlight = {
+          on_put = true,
+          on_yank = true,
+          timer = 500,
+        },
+        preserve_cursor_position = {
+          enabled = true,
+        },
+        textobj = {
+          enabled = false,
+        },
+      },
     },
     {
       'olimorris/onedarkpro.nvim',
@@ -1614,3 +1644,23 @@ vim.keymap.set('n', '<leader>dt', '<cmd>DBUIToggle<CR>', { desc = 'Toggle DB UI'
 -- Save current query buffer and execute it
 vim.keymap.set('n', '<leader>dq', '<cmd>DB<CR>', { desc = 'Execute SQL Query' })
 vim.keymap.set('n', '<leader>x', ':bd!<CR>', { noremap = true, silent = true, desc = 'Force Close Buffer' })
+
+vim.keymap.set('n', ']p', '<Plug>(YankyPutIndentAfterLinewise)')
+vim.keymap.set('n', '[p', '<Plug>(YankyPutIndentBeforeLinewise)')
+vim.keymap.set('n', ']P', '<Plug>(YankyPutIndentAfterLinewise)')
+vim.keymap.set('n', '[P', '<Plug>(YankyPutIndentBeforeLinewise)')
+
+vim.keymap.set('n', '>p', '<Plug>(YankyPutIndentAfterShiftRight)')
+vim.keymap.set('n', '<p', '<Plug>(YankyPutIndentAfterShiftLeft)')
+vim.keymap.set('n', '>P', '<Plug>(YankyPutIndentBeforeShiftRight)')
+vim.keymap.set('n', '<P', '<Plug>(YankyPutIndentBeforeShiftLeft)')
+vim.keymap.set('n', '=p', '<Plug>(YankyPutAfterFilter)')
+vim.keymap.set('n', '=P', '<Plug>(YankyPutBeforeFilter)')
+
+vim.keymap.set({ 'n', 'x' }, 'p', '<Plug>(YankyPutAfter)')
+vim.keymap.set({ 'n', 'x' }, 'P', '<Plug>(YankyPutBefore)')
+vim.keymap.set({ 'n', 'x' }, 'gp', '<Plug>(YankyGPutAfter)')
+vim.keymap.set({ 'n', 'x' }, 'gP', '<Plug>(YankyGPutBefore)')
+
+vim.keymap.set('n', '<c-p>', '<Plug>(YankyPreviousEntry)')
+vim.keymap.set('n', '<c-n>', '<Plug>(YankyNextEntry)')
