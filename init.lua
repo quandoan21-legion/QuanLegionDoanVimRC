@@ -1334,6 +1334,14 @@ require('lazy').setup({
     {
       'akinsho/bufferline.nvim',
       dependencies = 'nvim-tree/nvim-web-devicons',
+      keys = {
+        { '<S-h>', '<cmd>BufferLineCyclePrev<cr>', desc = 'Previous Buffer' },
+        { '<S-l>', '<cmd>BufferLineCycleNext<cr>', desc = 'Next Buffer' },
+        { '<leader>bp', '<Cmd>BufferLineTogglePin<CR>', desc = 'Toggle Pin' },
+        { '<leader>bP', '<Cmd>BufferLineGroupClose ungrouped<CR>', desc = 'Delete Non-Pinned Buffers' },
+        { '<leader>br', '<Cmd>BufferLineCloseRight<CR>', desc = 'Delete Buffers to the Right' },
+        { '<leader>bl', '<Cmd>BufferLineCloseLeft<CR>', desc = 'Delete Buffers to the Left' },
+      },
       config = function()
         require('bufferline').setup {
           options = {
@@ -1397,6 +1405,13 @@ require('lazy').setup({
       },
     },
     {
+      -- Bufferline
+      {
+        'akinsho/bufferline.nvim',
+        dependencies = 'nvim-tree/nvim-web-devicons',
+      },
+    },
+    {
       'tpope/vim-dadbod',
       dependencies = {
         'kristijanhusak/vim-dadbod-ui',
@@ -1435,8 +1450,12 @@ require('lazy').setup({
         end)
 
         require('ibl').setup {
-          indent = { char = '▏' }, -- Change indent character
-          scope = { highlight = highlight }, -- Enable rainbow indent colors
+          indent = { char = '│' }, -- Vertical bar character
+          scope = { highlight = highlight },
+          exclude = {
+            filetypes = { 'help', 'dashboard', 'NvimTree', 'packer', 'startify' },
+            buftypes = { 'terminal', 'nofile' },
+          },
         }
 
         hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
@@ -1471,7 +1490,6 @@ require('lazy').setup({
             },
           },
         }
-        vim.cmd 'colorscheme catppuccin'
       end,
     },
     {
@@ -1543,7 +1561,6 @@ require('lazy').setup({
             terminal_colors = true, -- Enable terminal colors
           },
         }
-        vim.cmd 'colorscheme onedark_dark' -- Set One Dark Darker as default
       end,
     },
 
@@ -1669,3 +1686,15 @@ vim.keymap.set({ 'n', 'x' }, 'gP', '<Plug>(YankyGPutBefore)')
 
 vim.keymap.set('n', '<c-p>', '<Plug>(YankyPreviousEntry)')
 vim.keymap.set('n', '<c-n>', '<Plug>(YankyNextEntry)')
+
+vim.opt.termguicolors = true
+
+require('bufferline').setup {
+  options = {
+    hover = {
+      enabled = true,
+      delay = 150,
+      reveal = { 'close' },
+    },
+  },
+}
