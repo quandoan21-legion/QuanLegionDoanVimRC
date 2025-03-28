@@ -696,6 +696,7 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         pyright = {},
+        lemminx = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -739,6 +740,8 @@ require('lazy').setup({
         'ts_ls', -- TypeScript/JavaScript
         'eslint_d', -- JavaScript linting
         'pyright', -- Python
+        'lemminx',
+        'xmlformatter',
         'ast_grep',
         'pylsp', -- Python Language Server
         'black', -- Python formatting
@@ -878,10 +881,11 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'isort', 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        xml = { 'xmlformatter' },
       },
     },
   },
@@ -1212,6 +1216,7 @@ require('lazy').setup({
             'eslint_d', -- JS linter
             'shfmt', -- Shell formatter
             'checkmake', -- Makefile linter
+            'xmlformatter',
           },
           automatic_installation = true,
         }
@@ -1231,6 +1236,7 @@ require('lazy').setup({
           formatting.stylua,
           formatting.shfmt.with { args = { '-i', '4' } },
           formatting.terraform_fmt,
+          formatting.xmlformatter,
         }
 
         local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
