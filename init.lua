@@ -88,7 +88,8 @@ P.S. You can delete this when you're done too. It's your config now! :)
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
@@ -770,7 +771,32 @@ require('lazy').setup({
   --
   -- add lua snip
   --
-
+  {
+    'nvimdev/dashboard-nvim',
+    event = 'VimEnter',
+    config = function()
+      require('dashboard').setup {
+        -- config
+        config = {
+          center = {
+            {
+              icon = '',
+              icon_hl = 'group',
+              desc = 'description',
+              desc_hl = 'group',
+              key = 'shortcut key in dashboard buffer not keymap !!',
+              key_hl = 'group',
+              key_format = ' [%s]', -- `%s` will be substituted with value of `key`
+              action = '',
+            },
+          },
+          footer = {},
+          vertical_center = false, -- Center the Dashboard on the vertical (from top to bottom)
+        },
+      }
+    end,
+    dependencies = { { 'nvim-tree/nvim-web-devicons' } },
+  },
   -- Add to your config
   {
     'L3MON4D3/LuaSnip',
@@ -1013,7 +1039,7 @@ require('lazy').setup({
       }
     end,
   },
-
+  { 'rebelot/kanagawa.nvim' },
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
@@ -1032,7 +1058,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'onedark_dark'
+      vim.cmd.colorscheme 'kanagawa-dragon'
     end,
   },
 
@@ -1365,17 +1391,56 @@ require('lazy').setup({
     --
     -- codium text completion
     --
+    --
     {
-      'Exafunction/codeium.nvim',
-      dependencies = {
-        'nvim-lua/plenary.nvim',
-        'hrsh7th/nvim-cmp',
-      },
+      'goolord/alpha-nvim',
+      dependencies = { 'nvim-tree/nvim-web-devicons' },
       config = function()
-        require('codeium').setup {}
+        local alpha = require 'alpha'
+        local dashboard = require 'alpha.themes.dashboard'
+
+        -- Header
+        dashboard.section.header.val = {
+          '██╗   ██╗███████╗██╗   ██╗',
+          '██║   ██║██╔════╝██║   ██║',
+          '██║   ██║█████╗  ██║   ██║',
+          '╚██╗ ██╔╝██╔══╝  ██║   ██║',
+          ' ╚████╔╝ ███████╗╚██████╔╝',
+          '  ╚═══╝  ╚══════╝ ╚═════╝ ',
+        }
+
+        -- Buttons
+        dashboard.section.buttons.val = {
+          dashboard.button('f', '🔍  Find file', ':Telescope find_files<CR>'),
+          dashboard.button('n', '📄  New file', ':ene <BAR> startinsert<CR>'),
+          dashboard.button('r', '🕘  Recent files', ':Telescope oldfiles<CR>'),
+          dashboard.button('g', '🔎  Grep text', ':Telescope live_grep<CR>'),
+          dashboard.button('c', '⚙️  Config', ':e $MYVIMRC<CR>'),
+          dashboard.button('q', '🚪  Quit NVIM', ':qa<CR>'),
+        }
+
+        -- Footer
+        dashboard.section.footer.val = '🚀 Happy Hacking with Neovim!'
+        dashboard.section.footer.opts.hl = 'Type'
+
+        -- Setup Alpha
+        alpha.setup(dashboard.config)
+
+        -- Autostart Alpha when no file or directory is passed, or when `nvim .` is used
+        vim.api.nvim_create_autocmd('VimEnter', {
+          callback = function()
+            local arg = vim.fn.argv()[1]
+            local is_dir = arg and vim.fn.isdirectory(arg) == 1
+
+            if (vim.fn.argc() == 0 or is_dir) and vim.bo.filetype == '' then
+              vim.cmd 'enew' -- open new empty buffer
+              vim.cmd 'silent! bwipeout #' -- wipe the previous buffer (dir buffer)
+              require('alpha').start()
+            end
+          end,
+        })
       end,
     },
-    --
     -- smear cursor
     --
 
