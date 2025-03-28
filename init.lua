@@ -1431,43 +1431,37 @@ require('lazy').setup({
     -- indent blank line
     --
     {
-      'lukas-reineke/indent-blankline.nvim',
-      main = 'ibl',
-      opts = function()
-        local highlight = {
-          'RainbowRed',
-          'RainbowYellow',
-          'RainbowBlue',
-          'RainbowOrange',
-          'RainbowGreen',
-          'RainbowViolet',
-          'RainbowCyan',
-        }
-
-        local hooks = require 'ibl.hooks'
-        hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-          vim.api.nvim_set_hl(0, 'RainbowRed', { fg = '#E06C75' })
-          vim.api.nvim_set_hl(0, 'RainbowYellow', { fg = '#E5C07B' })
-          vim.api.nvim_set_hl(0, 'RainbowBlue', { fg = '#61AFEF' })
-          vim.api.nvim_set_hl(0, 'RainbowOrange', { fg = '#D19A66' })
-          vim.api.nvim_set_hl(0, 'RainbowGreen', { fg = '#98C379' })
-          vim.api.nvim_set_hl(0, 'RainbowViolet', { fg = '#C678DD' })
-          vim.api.nvim_set_hl(0, 'RainbowCyan', { fg = '#56B6C2' })
-        end)
-
-        require('ibl').setup {
-          indent = { char = '│' }, -- Vertical bar character
-          scope = { highlight = highlight },
-          exclude = {
-            filetypes = { 'help', 'dashboard', 'NvimTree', 'packer', 'startify' },
-            buftypes = { 'terminal', 'nofile' },
+      'echasnovski/mini.nvim',
+      version = '*',
+      config = function()
+        require('mini.indentscope').setup {
+          draw = {
+            delay = 100,
+            animation = require('mini.indentscope').gen_animation.linear(), -- hoặc .linear() nếu bạn muốn có animation
+            predicate = function(scope)
+              return not scope.body.is_incomplete
+            end,
+            priority = 2,
           },
-        }
 
-        hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
+          mappings = {
+            object_scope = 'ii',
+            object_scope_with_border = 'ai',
+            goto_top = '[i',
+            goto_bottom = ']i',
+          },
+
+          options = {
+            border = 'both',
+            indent_at_cursor = true,
+            n_lines = 10000,
+            try_as_border = false,
+          },
+
+          symbol = '╎',
+        }
       end,
     },
-
     --
     -- cappuchin
     --
