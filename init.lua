@@ -1322,47 +1322,6 @@ require('lazy').setup({
         }
       end,
     },
-    --
-    -- python dap
-    --
-    -- ,
-    {
-      'rcarriga/nvim-dap-ui',
-      dependencies = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio' },
-      config = function()
-        local dap = require 'dap'
-        local dapui = require 'dapui'
-
-        dapui.setup()
-
-        dap.listeners.after.event_initialized['dapui_config'] = function()
-          dapui.open()
-        end
-
-        dap.listeners.before.event_terminated['dapui_config'] = function()
-          dapui.close()
-        end
-
-        dap.listeners.before.event_exited['dapui_config'] = function()
-          dapui.close()
-        end
-      end,
-    },
-    {
-      'mfussenegger/nvim-dap',
-    },
-    {
-      'mfussenegger/nvim-dap-python',
-      ft = 'python',
-      dependencies = {
-        'mfussenegger/nvim-dap',
-        'rcarriga/nvim-dap-ui',
-      },
-      config = function(_, opts)
-        local path = '~/.local/share/nvim/mason/packages/debugpy/venv/bin/python'
-        require('dap-python').setup(path)
-      end,
-    },
 
     --
     -- buffer line
@@ -1567,8 +1526,8 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
