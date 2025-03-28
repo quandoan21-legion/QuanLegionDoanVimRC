@@ -146,6 +146,27 @@ return {
         detached = vim.fn.has 'win32' == 0,
       },
     }
-    require('dap-python').setup()
+
+    require('dap-python').setup { '/Users/quandoan/Desktop/odoo13dev/myenv' } -- hoặc đường dẫn tuyệt đối nếu dùng venv
+
+    table.insert(require('dap').configurations.python, {
+      type = 'python',
+      request = 'launch',
+      name = 'Odoo (run odoo-bin)',
+      program = vim.fn.getcwd() .. '/Users/quandoan/Desktop/odoo13dev/odoo-bin',
+      pythonPath = 'python3.7',
+      args = {
+        '-c',
+        'debian/odoo.conf',
+        '-d',
+        'odoo13',
+        '--limit-memory-hard',
+        '0',
+      },
+      justMyCode = false,
+      env = {
+        PYTHONPATH = '/Users/quandoan/Desktop/odoo13dev', -- 👈 giúp Python tìm thấy module odoo
+      },
+    })
   end,
 }
