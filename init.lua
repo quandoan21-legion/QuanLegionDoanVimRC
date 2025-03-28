@@ -703,7 +703,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
         --
 
         lua_ls = {
@@ -739,6 +739,7 @@ require('lazy').setup({
         'ts_ls', -- TypeScript/JavaScript
         'eslint_d', -- JavaScript linting
         'pyright', -- Python
+        'ast_grep',
         'pylsp', -- Python Language Server
         'black', -- Python formatting
       })
@@ -1202,7 +1203,7 @@ require('lazy').setup({
           ensure_installed = {
             'ts_ls', -- TypeScript/JavaScript
             'eslint_d', -- JavaScript linting
-            'pyright', -- Python
+            'ast_grep', -- Python
             'pylsp', -- Python Language Server
             'black', -- Python formatting
             -- 'ruff', -- Python linter
@@ -1219,9 +1220,13 @@ require('lazy').setup({
           -- ✅ Correcting imports & formatting for Python
           formatting.isort, -- Sort imports
           -- diagnostics.ruff, -- Ruff for linting
-          -- formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
+          formatting.ruff_format, -- Ruff's formatting (not a full replacement for Black)
 
           -- Other formatters
+          null_ls.builtins.formatting.biome.with {
+            command = 'biome', -- make sure it's installed
+            args = { 'format', '--stdin-file-path', '$FILENAME' },
+          },
           formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
           formatting.stylua,
           formatting.shfmt.with { args = { '-i', '4' } },
